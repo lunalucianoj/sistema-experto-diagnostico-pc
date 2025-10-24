@@ -10,7 +10,6 @@ Este proyecto es un sistema experto diseñado para diagnosticar problemas de har
 
 * **Motores de Inferencia Intercambiables**: El núcleo del sistema puede operar con dos lógicas de diagnóstico distintas:
     1.  **Motor de Reglas Estrictas**: Un motor clásico `SI... ENTONCES...` que cumple con la consigna original del proyecto.
-    2.  **Motor de Puntuación (Pesos)**: Un motor más avanzado que asigna pesos a los síntomas para calcular el diagnóstico más probable, permitiendo manejar la incertidumbre.
 
 * **Arquitectura Modular**: El código está organizado separando la lógica del "motor" de las "interfaces", lo que facilita su mantenimiento y escalabilidad.
 
@@ -27,7 +26,6 @@ proyecto_inferencia/
 |
 |-- motor/
 |   |-- logica_reglas.py    # Motor de inferencia simple (SI/ENTONCES).
-|   |-- logica_pesos.py     # Motor de inferencia avanzado (Puntuación).
 |   `-- __init__.py
 |
 |-- templates/
@@ -51,20 +49,13 @@ El sistema se basa en la separación de la **Base de Conocimiento** (la informac
 * **Fortaleza**: Es muy transparente y fácil de entender. Cada diagnóstico se puede rastrear a una regla específica.
 * **Debilidad**: Es rígido. Si falta un solo síntoma para cumplir una regla, no puede llegar a una conclusión, incluso si la evidencia es fuerte.
 
-### 2. Motor de Puntuación (Avanzado)
 
-* **Archivo**: `motor/logica_pesos.py`
-* **Concepto**: Este motor trata cada síntoma como una "pista" a la que se le asigna un "peso" o puntuación. Suma los puntos de todos los síntomas seleccionados para cada diagnóstico posible y presenta el que tenga la puntuación más alta.
-* **Ejemplo**: El síntoma `'ruidos extraños en HDD'` aporta **25 puntos** al diagnóstico de "Falla de Disco Duro", mientras que `'sistema lento'` solo aporta **8 puntos**.
-* **Fortaleza**: Maneja la incertidumbre y la información incompleta. Puede ofrecer el diagnóstico **más probable** incluso con un solo síntoma.
-* **Debilidad**: La lógica es menos directa, ya que se basa en la suma de pesos y un umbral de confianza.
-
-| Característica | Motor de Reglas (Simple) | Motor de Puntuación (Avanzado) |
-| :--- | :--- | :--- |
-| **Precisión** | Alta, pero solo en casos perfectos. | Flexible, encuentra la mejor opción posible. |
-| **Incertidumbre** | No la maneja. | Es su principal fortaleza. |
-| **Transparencia** | Muy alta (fácil de explicar). | Moderada (basada en cálculos). |
-| **Complejidad** | Baja. | Media. |
+| Característica | Motor de Reglas (Simple) 
+| :--- | :--- 
+| **Precisión** | Alta, pero solo en casos perfectos. 
+| **Incertidumbre** | No la maneja. 
+| **Transparencia** | Muy alta (fácil de explicar). 
+| **Complejidad** | Baja. 
 
 ## 🚀 Instalación y Uso
 
@@ -84,7 +75,6 @@ El sistema se basa en la separación de la **Base de Conocimiento** (la informac
     ```bash
     python main.py
     ```
-2.  El programa te pedirá que elijas qué **motor de inferencia** quieres usar (el simple o el avanzado).
-3.  Luego, te preguntará cómo quieres ejecutar el sistema:
+2.  Luego, te preguntará cómo quieres ejecutar el sistema:
     * **Opción 1**: Lanza la **aplicación de escritorio**. Se abrirá una ventana donde podrás seleccionar los síntomas y obtener un diagnóstico.
     * **Opción 2**: Lanza el **servidor web**. Para usarlo, abre tu navegador y ve a `http://127.0.0.1:8000`. Verás una página web para realizar el diagnóstico.
