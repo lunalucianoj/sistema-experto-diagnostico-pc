@@ -1,0 +1,157 @@
+/* Archivo: static/styles.css */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 25px;
+    background-color: #f8f9fa;
+    color: #343a40;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+h1, h2 {
+    text-align: center;
+    color: #0056b3; /* Un azul más oscuro */
+    margin-bottom: 25px;
+}
+
+p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* Estilos para Botones y Enlaces como Botones */
+.btn, button {
+    display: block;
+    width: 100%;
+    padding: 12px 15px;
+    margin: 15px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s ease-in-out;
+    box-sizing: border-box; /* Asegura que padding no aumente el ancho */
+}
+.btn:hover, button:hover {
+    background-color: #0056b3;
+    color: white; /* Asegura que el texto siga siendo blanco */
+    text-decoration: none;
+}
+button[type="submit"] {
+    background-color: #28a745; /* Verde para confirmar */
+}
+button[type="submit"]:hover {
+    background-color: #218838;
+}
+.btn-secondary { /* Para enlaces como 'Volver' o 'Otro Problema' */
+    background-color: #6c757d;
+}
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+.btn-warning { /* Para 'Enviar Descripción' */
+    background-color: #ffc107;
+    color: #333;
+}
+.btn-warning:hover {
+    background-color: #e0a800;
+    color: #333;
+}
+
+/* Contenedores de Formularios */
+.form-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    margin-top: 20px;
+    border: 1px solid #e9ecef;
+}
+
+/* Grid para Síntomas */
+.symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin: 25px 0;
+}
+.symptom-item {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    transition: box-shadow 0.2s ease;
+}
+.symptom-item:hover {
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+input[type="checkbox"] {
+    margin-right: 12px;
+    transform: scale(1.3);
+    cursor: pointer;
+}
+label {
+    cursor: pointer;
+}
+
+/* Resultado del Diagnóstico */
+.resultado {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #e7f3fe;
+    border-left: 5px solid #007bff;
+    text-align: left;
+    border-radius: 5px;
+    line-height: 1.7;
+}
+.resultado h2 {
+    margin-top: 0;
+    text-align: left;
+    color: #0056b3;
+}
+
+/* Formulario Detallar Problema */
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #495057;
+}
+select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+textarea {
+    height: 150px;
+    resize: vertical;
+}
+.mensaje-exito {
+    color: #28a745;
+    margin-top: 20px;
+    text-align: center;
+    font-weight: bold;
+}

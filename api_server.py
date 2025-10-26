@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles # Para CSS (opcional)
+from fastapi.staticfiles import StaticFiles
 from typing import List
 
 # Importamos las funciones necesarias del motor
@@ -18,7 +18,7 @@ from motor.logica import (
 # Configuración de FastAPI y plantillas
 app = FastAPI(title="Sistema Experto de Diagnóstico de PC v2")
 templates = Jinja2Templates(directory="templates")
-# app.mount("/static", StaticFiles(directory="static"), name="static") # Descomentar si añades CSS/JS
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # --- Endpoints para la Interfaz Web Dinámica ---
 
