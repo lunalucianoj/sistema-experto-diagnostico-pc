@@ -20,22 +20,20 @@ El proyecto está organizado en paquetes para una clara separación de responsab
 ```
 proyecto_inferencia/
 |
-|-- gui/
-|   |-- app_gui.py          # Lógica de la interfaz gráfica con Tkinter.
-|   `-- __init__.py
-|
 |-- motor/
-|   |-- logica_reglas.py    # Motor de inferencia simple (SI/ENTONCES).
+|   |-- logica.py           # Motor de inferencia (lee JSON)
 |   `-- __init__.py
 |
 |-- templates/
-|   `-- index.html          # Interfaz web para el servidor FastAPI.
+|   |-- seleccionar_categoria.html
+|   |-- seleccionar_sintomas.html
+|   `-- resultado_diagnostico.html
 |
-|-- api_server.py           # Código del servidor web con FastAPI.
-|-- main.py                 # Punto de entrada principal para lanzar la aplicación.
-|-- requirements.txt        # Dependencias del proyecto.
-`-- README.md               # Esta documentación.
-```
+|-- api_server.py           # Servidor FastAPI (Interfaz Web + API)
+|-- main.py                 # Lanza el servidor web
+|-- base_conocimiento.json  # ¡Nuestra base de reglas externa!
+|-- requirements.txt        # Dependencias web
+`-- README.md               # Documentación
 
 ## 🧠 ¿Cómo Funciona el Sistema Experto?
 

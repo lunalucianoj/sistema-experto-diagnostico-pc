@@ -1,0 +1,42 @@
+{
+  "hechos": [
+    { "id": "pc_no_enciende", "pregunta": "La PC no enciende para nada (sin luces ni ruidos)", "categoria": "hardware" },
+    { "id": "enciende_pero_no_arranca_os", "pregunta": "La PC enciende (luces, ventiladores) pero no carga el Sistema Operativo", "categoria": "hardware" },
+    { "id": "hace_pitidos", "pregunta": "La PC hace pitidos al intentar arrancar", "categoria": "hardware" },
+    { "id": "pantalla_sin_video", "pregunta": "La PC enciende pero la pantalla no muestra video (monitor encendido)", "categoria": "hardware" },
+    { "id": "ruidos_hdd", "pregunta": "El disco duro hace ruidos extraños (clics, zumbidos)", "categoria": "hardware" },
+    { "id": "periferico_no_funciona", "pregunta": "Un periférico (mouse, teclado, etc.) no funciona", "categoria": "hardware" },
+    { "id": "sobrecalentamiento", "pregunta": "La PC se siente muy caliente o los ventiladores giran muy rápido/ruidoso", "categoria": "hardware" },
+    { "id": "imagen_congelada_o_artefactos", "pregunta": "La imagen en pantalla se congela, muestra colores raros o 'artefactos'", "categoria": "hardware" },
+
+    { "id": "sistema_lento", "pregunta": "El sistema operativo está muy lento, tarda en responder o se congela", "categoria": "software" },
+    { "id": "pantalla_azul", "pregunta": "Aparecen 'Pantallas Azules' con códigos de error (BSOD)", "categoria": "software" },
+    { "id": "programas_cierran", "pregunta": "Los programas se cierran solos inesperadamente", "categoria": "software" },
+    { "id": "no_conecta_wifi", "pregunta": "No puedo conectarme a la red WiFi (otros dispositivos sí pueden)", "categoria": "software" },
+    { "id": "wifi_conectado_sin_internet", "pregunta": "Estoy conectado al WiFi pero no tengo acceso a Internet", "categoria": "software" },
+    { "id": "publicidad_excesiva", "pregunta": "Aparecen ventanas de publicidad (pop-ups) constantemente", "categoria": "software" },
+    { "id": "archivos_corruptos", "pregunta": "Algunos archivos no se pueden abrir, están dañados o han desaparecido", "categoria": "software" },
+    { "id": "mensajes_error_frecuentes", "pregunta": "Recibo mensajes de error de Windows o de aplicaciones a menudo", "categoria": "software" }
+  ],
+  "reglas": [
+    { "diagnostico": "Falla de Fuente de Poder. La PC no recibe energía. Verifica el cable de alimentación, el interruptor trasero de la fuente y las conexiones internas a la placa base.", "condiciones": ["pc_no_enciende"] },
+    { "diagnostico": "Falla crítica de Hardware (RAM o Video). Los pitidos al arrancar son un código de error. Consulta el manual de tu placa base para interpretar la secuencia e identificar el componente afectado (usualmente RAM mal asentada o defectuosa).", "condiciones": ["pc_no_enciende", "hace_pitidos"] },
+    { "diagnostico": "Falla crítica de Hardware (Placa base o CPU). Si la PC enciende pero no hay pitidos y no inicia el sistema operativo, podría ser un problema grave en la placa base o el procesador.", "condiciones": ["enciende_pero_no_arranca_os", "NOT:hace_pitidos"] },
+    { "diagnostico": "Problema de Conexión de Video o Falla de Tarjeta Gráfica/Monitor. Revisa que el cable (HDMI/DisplayPort/VGA) esté bien conectado al monitor y a la tarjeta de video (si tienes una dedicada, úsala). Prueba con otro cable u otro monitor si es posible.", "condiciones": ["pantalla_sin_video"] },
+    { "diagnostico": "Falla de Tarjeta Gráfica (GPU). Congelamientos, artefactos visuales o colores extraños, especialmente durante juegos o tareas gráficas intensas, suelen indicar un problema con la GPU (sobrecalentamiento, drivers o defecto físico).", "condiciones": ["imagen_congelada_o_artefactos"] },
+    { "diagnostico": "¡ALERTA! Posible Falla Mecánica del Disco Duro (HDD). Los ruidos de clics combinados con lentitud extrema son un signo grave de falla inminente. Haz una copia de seguridad INMEDIATAMENTE y reemplaza el disco (preferiblemente por un SSD).", "condiciones": ["sistema_lento", "ruidos_hdd"] },
+    { "diagnostico": "Problema de Sobrecalentamiento. La lentitud y el ruido excesivo de ventiladores indican que la PC no refrigera bien. Limpia el polvo interno, asegura buena ventilación y considera cambiar la pasta térmica si tienes experiencia.", "condiciones": ["sobrecalentamiento", "sistema_lento"] },
+    { "diagnostico": "Infección por Malware (Virus/Adware). La lentitud, programas que fallan, publicidad invasiva y/o archivos dañados son síntomas claros. Realiza un escaneo profundo con un buen antivirus/anti-malware.", "condiciones": ["sistema_lento", "programas_cierran", "publicidad_excesiva"] },
+    { "diagnostico": "Problema de Drivers, Conflicto de Software o Falla de Hardware (RAM/Disco). Las 'Pantallas Azules' (BSOD) requieren anotar el código de error. Generalmente son drivers (video, red), software incompatible o fallos de memoria RAM o disco. Actualiza drivers, desinstala software reciente, revisa la RAM.", "condiciones": ["pantalla_azul"] },
+    { "diagnostico": "Problema de Configuración de Red o Driver WiFi. Si no conecta al WiFi (y otros sí), verifica contraseña, reinicia router/PC. Si persiste, reinstala o actualiza el driver de red inalámbrica desde la web del fabricante de tu PC/adaptador.", "condiciones": ["no_conecta_wifi"] },
+    { "diagnostico": "Problema de Configuración de Red (DNS/IP) o del Proveedor de Internet. Si estás conectado al WiFi pero sin Internet, prueba reiniciando router/módem. Intenta acceder a la configuración del router (192.168.1.1 o similar). Si el problema persiste en varios dispositivos, contacta a tu proveedor.", "condiciones": ["wifi_conectado_sin_internet"] },
+    { "diagnostico": "Falla de un Periférico o Puerto USB. Prueba el dispositivo en otro puerto USB y en otra PC. Si sigue sin funcionar, probablemente el periférico esté dañado. Si funciona en otra PC, el problema podría ser el puerto USB o los drivers de tu PC.", "condiciones": ["periferico_no_funciona"] }
+  ],
+  "diagnosticos_sintoma_unico": {
+    "sistema_lento": "Diagnóstico Sugerido: La lentitud puede deberse a muchas causas: falta de espacio en disco, demasiados programas al inicio, malware, sobrecalentamiento o incluso un disco duro fallando. Comienza revisando el Administrador de Tareas (Ctrl+Shift+Esc) para ver qué consume recursos.",
+    "programas_cierran": "Diagnóstico Sugerido: Cierres inesperados pueden ser por incompatibilidad del software, falta de recursos (RAM), sobrecalentamiento, drivers desactualizados (especialmente de video) o malware. Asegúrate que tu sistema y drivers estén actualizados.",
+    "archivos_corruptos": "Diagnóstico Sugerido: Archivos dañados pueden indicar problemas con el disco duro/SSD (ejecuta 'chkdsk' en CMD como admin), una infección de malware, o problemas durante la descarga/transferencia. Realiza un escaneo antivirus y verifica la salud del disco.",
+    "mensajes_error_frecuentes": "Diagnóstico Sugerido: Anota los mensajes de error específicos. Generalmente indican problemas de software (archivos faltantes, incompatibilidad), drivers, o a veces hardware (RAM). Busca el código de error en Google para obtener pistas más concretas.",
+    "hace_pitidos": "Diagnóstico Sugerido: Los pitidos al arrancar son códigos de error de la BIOS, usualmente indican un problema grave de hardware (RAM, Tarjeta de Video, Placa Base). Anota la secuencia de pitidos (cortos y largos) y busca su significado en el manual de tu placa base o en internet para identificar el componente."
+  }
+}

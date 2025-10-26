@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado del Diagnóstico</title>
+     <style> /* Mismos estilos básicos */
+        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background-color: #f4f4f9; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center;}
+        h1 { color: #333; }
+        .resultado { margin-top: 25px; padding: 20px; background-color: #e7f3fe; border-left: 6px solid #2196F3; text-align: left; border-radius: 5px;}
+        a { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        a:hover { background-color: #0056b3; }
+         /* Estilo para "Otro Problema" - Podemos añadirlo aquí o en un JS */
+         .otro-problema-link { background-color: #6c757d; margin-left: 10px;}
+         .otro-problema-link:hover { background-color: #5a6268;}
+    </style>
+</head>
+<body>
+    <h1>Resultado del Diagnóstico</h1>
+    <div class="resultado">
+        <p>{{ diagnostico }}</p>
+    </div>
+
+    <a href="/">Realizar otro diagnóstico</a>
+    </body>
+</html>

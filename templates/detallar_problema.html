@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detallar Otro Problema</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background-color: #f4f4f9; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        textarea { height: 150px; resize: vertical; }
+        button { display: block; width: 100%; padding: 12px; font-size: 16px; background-color: #ffc107; color: #333; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+        button:hover { background-color: #e0a800; }
+        a { color: #007bff; text-decoration: none; display: inline-block; margin-top: 15px;}
+        .mensaje-exito { color: green; margin-top: 15px; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Describe tu Problema</h1>
+    
+    {% if mensaje_exito %}
+        <p class="mensaje-exito">{{ mensaje_exito }}</p>
+    {% else %}
+        <p>Si no encontraste los síntomas adecuados, por favor describe el problema lo más detalladamente posible.</p>
+        <form action="/registrar-otro-problema" method="post">
+            <div class="form-group">
+                <label for="categoria_otro">Categoría del problema:</label>
+                <select name="categoria_otro" id="categoria_otro" required>
+                    <option value="" disabled selected>-- Selecciona una categoría --</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat }}">{{ cat.capitalize() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="descripcion">Descripción detallada:</label>
+                <textarea name="descripcion" id="descripcion" placeholder="Describe qué ocurre, cuándo empezó, qué has intentado, etc." required></textarea>
+            </div>
+            <button type="submit">Enviar Descripción</button>
+        </form>
+    {% endif %}
+    
+    <a href="/">&laquo; Volver al Inicio</a>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Diagnóstico PC - Seleccionar Categoría</title>
+    <style> /* Estilos básicos - Podemos mejorarlos luego */
+        body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 20px; background-color: #f4f4f9; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .categoria-btn { display: block; width: 100%; padding: 15px; margin: 15px 0; font-size: 18px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; text-align: center; text-decoration: none; }
+        .categoria-btn:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Selecciona la Categoría del Problema</h1>
+    {% for categoria in categorias %}
+    <a href="/sintomas/{{ categoria }}" class="categoria-btn">{{ categoria.capitalize() }}</a>
+    {% endfor %}
+</body>
+</html>
