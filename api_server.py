@@ -7,103 +7,139 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from typing import List
 
-# Importamos las funciones necesarias del motor
+# Importamos las funciones necesarias del motor Y HECHOS_POR_ID
 from motor.logica import (
-    get_categorias, 
-    get_hechos_por_categoria, 
+    get_categorias,
+    get_hechos_por_categoria,
     motor_de_inferencia,
-    Hecho # Importamos la clase Hecho para type hinting
+    Hecho, # Clase Hecho para type hinting (buena práctica)
+    HECHOS_POR_ID # Necesario para obtener las preguntas en /diagnostico
 )
 
-# Configuración de FastAPI y plantillas
-app = FastAPI(title="Sistema Experto de Diagnóstico de PC v2")
+# --- Configuración de FastAPI y Plantillas ---
+# Define la aplicación FastAPI con un título descriptivo.
+app = FastAPI(title="Sistema Experto de Diagnóstico de PC v3.3")
+
+# Configura Jinja2 para buscar plantillas en la carpeta 'templates'.
 templates = Jinja2Templates(directory="templates")
+
+# Monta la carpeta 'static' para servir archivos CSS, JS, etc., bajo la URL '/static'.
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # --- Endpoints para la Interfaz Web Dinámica ---
 
 @app.get("/", response_class=HTMLResponse)
 async def mostrar_categorias(request: Request):
-    """ Muestra la página principal con botones para cada categoría. """
-    categorias = get_categorias()
+    """
+    Endpoint Raíz (GET /): Muestra la página principal.
+    Obtiene las categorías desde el motor y las pasa a la plantilla
+    'seleccionar_categoria.html' para renderizar los botones.
+    """
+    categorias = get_categorias() # Llama a la función del motor
+    print(f"DEBUG: Categorías obtenidas: {categorias}") # Mensaje de depuración
     return templates.TemplateResponse("seleccionar_categoria.html", {
-        "request": request, 
+        "request": request,
         "categorias": categorias
     })
 
 @app.get("/sintomas/{categoria}", response_class=HTMLResponse)
 async def mostrar_sintomas_por_categoria(request: Request, categoria: str):
-    """ Muestra los síntomas correspondientes a la categoría seleccionada. """
+    """
+    Endpoint para mostrar síntomas (GET /sintomas/{categoria}):
+    Obtiene los hechos (síntomas) para la 'categoria' especificada en la URL.
+    Si la categoría es inválida o no tiene hechos, redirige a la página principal.
+    Pasa la lista de hechos y el nombre de la categoría a la plantilla
+    'seleccionar_sintomas.html' para renderizar los checkboxes.
+    """
+    print(f"DEBUG: Solicitando síntomas para la categoría: {categoria}") # Mensaje de depuración
     hechos = get_hechos_por_categoria(categoria)
-    if not hechos: # Si la categoría no existe o no tiene hechos
-        return RedirectResponse(url="/", status_code=303)
-        
+    if not hechos:
+        print(f"WARN: Categoría '{categoria}' no encontrada o sin hechos. Redirigiendo a /.") # Mensaje de advertencia
+        return RedirectResponse(url="/", status_code=303) # Redirige si la categoría no es válida
+
     return templates.TemplateResponse("seleccionar_sintomas.html", {
-        "request": request, 
-        "categoria": categoria.capitalize(), 
-        "hechos": hechos
+        "request": request,
+        "categoria": categoria.capitalize(), # Pone la primera letra en mayúscula para mostrar
+        "hechos": hechos # Lista de objetos Hecho
     })
 
-# Reemplaza el endpoint existente en api_server.py
 @app.post("/diagnostico", response_class=HTMLResponse)
-async def diagnosticar_desde_web(request: Request, sintomas_seleccionados: List[str] = Form(None)): # Cambiado ... por None
-    """ Recibe la lista de IDs de síntomas, obtiene diagnóstico y síntomas, y muestra el resultado. """
-# --- AÑADIR ESTA COMPROBACIÓN ---
+async def diagnosticar_desde_web(request: Request, sintomas_seleccionados: List[str] = Form(None)):
+    """
+    Endpoint de Diagnóstico (POST /diagnostico):
+    Recibe la lista de IDs de los síntomas seleccionados desde el formulario.
+    Si no se seleccionó ninguno, inicializa la lista como vacía.
+    Llama al 'motor_de_inferencia' con la lista de IDs.
+    Obtiene las preguntas correspondientes a los IDs seleccionados para mostrarlas.
+    Pasa el diagnóstico y las preguntas a la plantilla 'resultado_diagnostico.html'.
+    """
+    # Maneja el caso donde no se selecciona ningún síntoma
     if not sintomas_seleccionados:
-        # Si no se seleccionó nada, pasamos una lista vacía al motor
-        sintomas_seleccionados = [] 
-    # --- FIN DE LA COMPROBACIÓN ---
-    # Llamamos al motor, que ahora devuelve un diccionario
-    resultado_motor = motor_de_inferencia(sintomas_seleccionados)
-    
-    # Obtenemos las preguntas correspondientes a los IDs seleccionados
-    # Usamos HECHOS_POR_ID que ya está definido globalmente en logica.py
-    # Necesitamos importarlo en api_server.py
-    from motor.logica import HECHOS_POR_ID # Añadir esta importación al principio de api_server.py
-    
-    sintomas_preguntas = [HECHOS_POR_ID[id_hecho].pregunta for id_hecho in sintomas_seleccionados if id_hecho in HECHOS_POR_ID]
+        sintomas_seleccionados = []
+        print("DEBUG: No se seleccionaron síntomas.") # Mensaje de depuración
+    else:
+         print(f"DEBUG: Síntomas seleccionados recibidos: {sintomas_seleccionados}") # Mensaje de depuración
 
+    # Llama al motor de inferencia (que ahora devuelve un diccionario)
+    resultado_motor = motor_de_inferencia(sintomas_seleccionados)
+    print(f"DEBUG: Resultado del motor: {resultado_motor}") # Mensaje de depuración
+
+    # Obtiene las preguntas completas para los IDs seleccionados (usa el HECHOS_POR_ID importado)
+    sintomas_preguntas = [HECHOS_POR_ID[id_hecho].pregunta
+                          for id_hecho in sintomas_seleccionados
+                          if id_hecho in HECHOS_POR_ID]
+
+    # Renderiza la plantilla de resultados
     return templates.TemplateResponse("resultado_diagnostico.html", {
         "request": request,
-        "diagnostico": resultado_motor["diagnostico"], # Extraemos el diagnóstico
-        "sintomas_mostrados": sintomas_preguntas # Pasamos las preguntas
+        "diagnostico": resultado_motor["diagnostico"], # Extrae el texto del diagnóstico
+        "sintomas_mostrados": sintomas_preguntas # Pasa la lista de preguntas
     })
 
-# --- Endpoint API (opcional, si quieres mantenerlo) ---
-# Puedes adaptar el endpoint /api/diagnostico si lo necesitas,
-# asegurándote de que Pydantic valide una lista de strings ahora.
+# --- Endpoints para "Detallar Otro Problema" ---
 
 @app.get("/otro-problema", response_class=HTMLResponse)
 async def mostrar_formulario_otro_problema(request: Request):
-    """ Muestra el formulario para describir un problema no listado. """
-    categorias = get_categorias() # Reutilizamos la función del motor
+    """
+    Endpoint GET /otro-problema:
+    Muestra el formulario para que el usuario describa un problema no listado.
+    Obtiene las categorías disponibles para el selector desplegable.
+    """
+    categorias = get_categorias()
     return templates.TemplateResponse("detallar_problema.html", {
         "request": request,
         "categorias": categorias,
-        "mensaje_exito": None
+        "mensaje_exito": None # Para no mostrar mensaje de éxito al cargar
     })
 
 @app.post("/registrar-otro-problema", response_class=HTMLResponse)
 async def registrar_otro_problema(request: Request, categoria_otro: str = Form(...), descripcion: str = Form(...)):
-    """ Recibe la descripción del problema y la 'registra' (por ahora, imprime). """
+    """
+    Endpoint POST /registrar-otro-problema:
+    Recibe la categoría y la descripción del problema detallado por el usuario.
+    Actualmente, solo imprime la información en la consola.
+    (Futura mejora: guardar en archivo/base de datos).
+    Vuelve a mostrar el formulario con un mensaje de éxito.
+    """
+    # Imprime la información recibida en la terminal del servidor
     print("\n--- NUEVO PROBLEMA DETALLADO POR USUARIO ---")
-    print(f"Categoría: {categoria_otro}")
-    print(f"Descripción: {descripcion}")
+    print(f"Categoría Seleccionada: {categoria_otro}")
+    print(f"Descripción del Usuario: {descripcion}")
     print("---------------------------------------------\n")
-    
-    # Podríamos guardar esto en un archivo, base de datos, etc.
-    
-    categorias = get_categorias() # Necesario para volver a renderizar la plantilla
+
+    # Re-renderiza la misma página mostrando un mensaje de confirmación
+    categorias = get_categorias() # Necesario para el selector
     return templates.TemplateResponse("detallar_problema.html", {
         "request": request,
         "categorias": categorias,
         "mensaje_exito": "¡Gracias! Hemos registrado tu descripción."
     })
 
-
-# --- Función para Iniciar (se usa desde main.py) ---
-def iniciar_api(motor_seleccionado=None): # El parámetro ya no es necesario aquí
-    """ Lanza el servidor FastAPI. """
-    print("Iniciando servidor API en http://127.0.0.1:8000")
-    print("Abre tu navegador en esa dirección.")
+# --- Función de Inicio del Servidor (llamada desde main.py) ---
+def iniciar_api(): # Eliminado el parámetro 'motor_seleccionado' ya que no se usa aquí
+    """ Lanza el servidor web FastAPI/Uvicorn. """
+    print("Iniciando servidor FastAPI en http://127.0.0.1:8000")
+    print("Abre tu navegador en esa dirección para usar el Sistema Experto.")
+    print("Presiona CTRL+C para detener el servidor.")
+    # Ejecuta el servidor Uvicorn, apuntando a la instancia 'app' de FastAPI en este archivo.
     uvicorn.run(app, host="127.0.0.1", port=8000)
