@@ -46,9 +46,13 @@ async def mostrar_sintomas_por_categoria(request: Request, categoria: str):
 
 # Reemplaza el endpoint existente en api_server.py
 @app.post("/diagnostico", response_class=HTMLResponse)
-async def diagnosticar_desde_web(request: Request, sintomas_seleccionados: List[str] = Form(...)):
+async def diagnosticar_desde_web(request: Request, sintomas_seleccionados: List[str] = Form(None)): # Cambiado ... por None
     """ Recibe la lista de IDs de síntomas, obtiene diagnóstico y síntomas, y muestra el resultado. """
-    
+# --- AÑADIR ESTA COMPROBACIÓN ---
+    if not sintomas_seleccionados:
+        # Si no se seleccionó nada, pasamos una lista vacía al motor
+        sintomas_seleccionados = [] 
+    # --- FIN DE LA COMPROBACIÓN ---
     # Llamamos al motor, que ahora devuelve un diccionario
     resultado_motor = motor_de_inferencia(sintomas_seleccionados)
     

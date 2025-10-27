@@ -69,79 +69,117 @@ def get_categorias() -> List[str]:
     return sorted(list(set(hecho.categoria for hecho in BASE_CONOCIMIENTO.hechos)))
 
 def _llamar_modulo_ml(hechos_activos_ids: List[str]) -> str:
-     """ Placeholder MEJORADO para la integración del módulo ML. """
-     print(f"INFO: Reglas no concluyentes para {hechos_activos_ids}. Pasando a módulo ML (simulado).")
-     
-     # Lógica simulada simple: buscar palabras clave en los síntomas
-     sintomas_texto = " ".join(HECHOS_POR_ID[id_hecho].pregunta for id_hecho in hechos_activos_ids if id_hecho in HECHOS_POR_ID).lower()
-     
-     sugerencia_ml = "investigar posibles conflictos de software o drivers recientes." # Sugerencia por defecto
-     
-     if "lento" in sintomas_texto and "disco" not in sintomas_texto and "caliente" not in sintomas_texto:
-         sugerencia_ml = "optimizar el sistema operativo (programas de inicio, espacio en disco) o buscar malware."
-     elif "wifi" in sintomas_texto or "internet" in sintomas_texto:
-         sugerencia_ml = "revisar la configuración de red, reiniciar el router/módem o actualizar los drivers de red."
-     elif "video" in sintomas_texto or "pantalla" in sintomas_texto or "imagen" in sintomas_texto:
-          sugerencia_ml = "actualizar los drivers de la tarjeta gráfica o verificar las conexiones de video."
-          
-     return (f"Diagnóstico: Las reglas exactas no coinciden. Un análisis avanzado (ML) sugiere {sugerencia_ml} "
-             "Considere proporcionar más detalles en la sección 'Otro Problema'. (Módulo ML simulado)")
+    """ Placeholder MEJORADO v2 para la integración del módulo ML. Considera combinaciones. """
+    print(f"INFO: Reglas no concluyentes para {hechos_activos_ids}. Pasando a módulo ML (simulado).")
+    
+    set_hechos_activos = set(hechos_activos_ids) # Usamos un set para búsquedas rápidas
+    
+    # --- Lógica Simulada Mejorada: Priorizar Combinaciones ---
+    
+    sugerencia_ml = "investigar posibles conflictos de software generales o drivers recientes." # Sugerencia por defecto aún más genérica
+    
+    # Combinación: Lento + Problemas de Red (WiFi o Internet)
+    if "sistema_lento" in set_hechos_activos and ("no_conecta_wifi" in set_hechos_activos or "wifi_conectado_sin_internet" in set_hechos_activos):
+        sugerencia_ml = "revisar si hay software consumiendo mucho ancho de banda (actualizaciones, P2P), buscar malware que afecte la red, o considerar problemas con el router/proveedor que impacten el rendimiento general."
+    
+    # Combinación: Lento + Cierres/Errores (Software Inestable)
+    elif "sistema_lento" in set_hechos_activos and ("programas_cierran" in set_hechos_activos or "mensajes_error_frecuentes" in set_hechos_activos or "pantalla_azul" in set_hechos_activos):
+        sugerencia_ml = "buscar actualizaciones del sistema operativo y de las aplicaciones que fallan, verificar la integridad de los archivos del sistema (ejecutar 'sfc /scannow' en CMD como admin), o considerar problemas de RAM."
+        
+    # Combinación: Problemas de Video + Lento/Cierres (GPU/Driver Inestable)
+    elif "imagen_congelada_o_artefactos" in set_hechos_activos and ("sistema_lento" in set_hechos_activos or "programas_cierran" in set_hechos_activos):
+        sugerencia_ml = "realizar una instalación limpia de los drivers de la tarjeta gráfica (usando DDU si es necesario), monitorizar las temperaturas de la GPU, o verificar si la fuente de poder es suficiente."
+        
+    # --- Lógica basada en palabras clave individuales (si no aplican combinaciones) ---
+        
+    # Solo Lento (sin otros síntomas clave combinados arriba)
+    elif "sistema_lento" in set_hechos_activos and not {"ruidos_hdd", "sobrecalentamiento", "programas_cierran", "publicidad_excesiva", "no_conecta_wifi", "wifi_conectado_sin_internet", "pantalla_azul", "mensajes_error_frecuentes", "imagen_congelada_o_artefactos"} & set_hechos_activos:
+        sugerencia_ml = "optimizar el sistema operativo (programas de inicio, espacio en disco, desfragmentar HDD), buscar malware o verificar el estado del disco duro/SSD."
 
-def motor_de_inferencia(hechos_activos_ids: List[str]) -> Dict[str, Any]: # Cambiado para devolver un Diccionario
+    # Solo Problemas WiFi/Internet (sin lentitud combinada arriba)
+    elif ("no_conecta_wifi" in set_hechos_activos or "wifi_conectado_sin_internet" in set_hechos_activos) and not {"sistema_lento"} & set_hechos_activos:
+        sugerencia_ml = "revisar la configuración de red (IP/DNS), reiniciar router/módem, actualizar drivers de red o contactar al proveedor de internet."
+        
+    # Solo Problemas de Video (sin lentitud/cierres combinados arriba)
+    elif "imagen_congelada_o_artefactos" in set_hechos_activos and not {"sistema_lento", "programas_cierran"} & set_hechos_activos:
+        sugerencia_ml = "actualizar los drivers de la tarjeta gráfica, verificar las conexiones de video o monitorizar temperaturas de la GPU."
+
+    # --- Mensaje Final ---
+    return (f"Diagnóstico: Las reglas exactas no coinciden. Un análisis avanzado (ML) sugiere {sugerencia_ml} "
+            "Considere proporcionar más detalles en la sección 'Otro Problema'. (Módulo ML simulado)")
+
+
+# Reemplaza la función motor_de_inferencia en motor/logica.py con esto:
+
+def motor_de_inferencia(hechos_activos_ids: List[str]) -> Dict[str, Any]:
     """
-    Motor de inferencia v3.1: Devuelve un diccionario con diagnóstico y síntomas.
+    Motor de inferencia v3.3: Prioriza regla específica y verifica coincidencia significativa.
+    Devuelve un diccionario con diagnóstico y síntomas.
     """
     set_hechos_activos = set(hechos_activos_ids)
-    
-    resultado_final: str = "Diagnóstico no determinado" # Valor inicial por defecto
+    resultado_final: str = "Diagnóstico no determinado"
     
     if not set_hechos_activos:
          resultado_final = "Por favor, selecciona al menos un síntoma."
     else:
-        diagnostico_encontrado = None
-        max_condiciones_cumplidas = -1
+        mejor_regla_encontrada = None
+        max_condiciones_positivas_coincidentes = -1
+        max_especificidad_regla = -1
 
-        # 1. Búsqueda de Regla Exacta
+        # 1. Buscar la regla que mejor se ajuste y sea más específica
         for regla in BASE_CONOCIMIENTO.reglas:
             condiciones_cumplidas = True
-            num_condiciones = 0
-            condiciones_de_esta_regla = set() # Guardamos las condiciones para saber qué tan específica es
-
+            condiciones_positivas_coincidentes_actual = 0
+            especificidad_actual = len(regla.condiciones)
+            
             for cond in regla.condiciones:
-                num_condiciones += 1
-                condiciones_de_esta_regla.add(cond.replace("NOT:", "")) # Añadimos el ID base
+                cond_base = cond.replace("NOT:", "")
                 if cond.startswith("NOT:"):
-                    cond_id = cond.replace("NOT:", "")
-                    if cond_id in set_hechos_activos:
+                    if cond_base in set_hechos_activos:
                         condiciones_cumplidas = False; break
                 else:
                     if cond not in set_hechos_activos:
                         condiciones_cumplidas = False; break
+                    else:
+                         condiciones_positivas_coincidentes_actual += 1
             
-            # Si se cumplen y es más específica que la anterior encontrada
-            if condiciones_cumplidas and num_condiciones > max_condiciones_cumplidas:
-                 # ¡Importante! Asegurarse que la regla usa TODOS los síntomas activos para ser considerada la mejor
-                 # Opcional: Podrías querer la regla que usa MÁS síntomas activos, incluso si no son todos.
-                 # Por ahora, buscamos la regla más específica que se cumpla con los síntomas dados.
-                max_condiciones_cumplidas = num_condiciones
-                diagnostico_encontrado = regla.diagnostico
+            if condiciones_cumplidas:
+                # Priorizar la regla que usa MÁS de los síntomas activos actuales
+                if condiciones_positivas_coincidentes_actual > max_condiciones_positivas_coincidentes:
+                    max_condiciones_positivas_coincidentes = condiciones_positivas_coincidentes_actual
+                    max_especificidad_regla = especificidad_actual
+                    mejor_regla_encontrada = regla
+                # Desempate: Si usan la misma cantidad de síntomas activos, preferir la más específica (más condiciones en total)
+                elif condiciones_positivas_coincidentes_actual == max_condiciones_positivas_coincidentes and especificidad_actual > max_especificidad_regla:
+                    max_especificidad_regla = especificidad_actual
+                    mejor_regla_encontrada = regla
 
-        # 2. Asignar resultado si se encontró regla
-        if diagnostico_encontrado:
-            resultado_final = diagnostico_encontrado
-        # 3. Si no, y hay un solo síntoma ambiguo
+        # --- LÓGICA DE DECISIÓN CORREGIDA ---
+        # 2. Verificar si la mejor regla encontrada es suficientemente buena
+        # Consideramos 'buena' si usa casi todos los síntomas activos.
+        # Por ejemplo, si hay 2 síntomas, la regla debe usar al menos 1 o 2. Si hay 3, al menos 2.
+        # Ajusta este umbral si es necesario.
+
+        if mejor_regla_encontrada and max_condiciones_positivas_coincidentes == len(set_hechos_activos - {c.replace("NOT:","") for c in mejor_regla_encontrada.condiciones if c.startswith("NOT:")}):
+
+            resultado_final = mejor_regla_encontrada.diagnostico
+            
+        # 3. Si no hay regla buena, y es un solo síntoma con sugerencia
         elif len(set_hechos_activos) == 1:
             sintoma_unico_id = list(set_hechos_activos)[0]
             if BASE_CONOCIMIENTO.diagnosticos_sintoma_unico and sintoma_unico_id in BASE_CONOCIMIENTO.diagnosticos_sintoma_unico:
                 resultado_final = BASE_CONOCIMIENTO.diagnosticos_sintoma_unico[sintoma_unico_id]
-            else: # Si es un síntoma único pero no está en los sugeridos, ir a ML
+            else: # Síntoma único sin sugerencia -> ML
                  resultado_final = _llamar_modulo_ml(hechos_activos_ids)
-        # 4. Si no aplican los anteriores (múltiples síntomas sin regla)
+        # 4. Si no aplican los anteriores (múltiples síntomas sin regla suficientemente buena) -> ML
         else:
              resultado_final = _llamar_modulo_ml(hechos_activos_ids)
 
-    # Devolver un diccionario con el diagnóstico y los IDs de los síntomas pasados
+    # Devolver diccionario
     return {
         "diagnostico": resultado_final,
         "sintomas_pasados_ids": hechos_activos_ids
     }
+
+# La función _llamar_modulo_ml se mantiene igual que en la versión anterior.
+# Asegúrate de tenerla definida en el mismo archivo.

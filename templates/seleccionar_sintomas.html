@@ -18,10 +18,37 @@
                 </div>
                 {% endfor %}
             </div>
+            </div> <div id="error-message" style="color: red; margin-top: 15px; text-align: center; font-weight: bold; display: none;">
+                Por favor, selecciona al menos un síntoma.
+            </div>
             <button type="submit">Obtener Diagnóstico</button>
         </form>
         <a href="/" class="btn btn-secondary" style="margin-top: 25px;">&laquo; Volver a Categorías</a>
         <a href="/otro-problema" class="btn btn-secondary" style="margin-top: 10px;">¿Tu problema no está aquí? Descríbelo</a>
     </div>
+    <script>
+    // Selecciona el formulario y el div del mensaje de error
+    const form = document.querySelector('form[action="/diagnostico"]');
+    const errorMessageDiv = document.getElementById('error-message');
+
+    // Añade un 'escuchador' al evento de envío del formulario
+    form.addEventListener('submit', function(event) {
+        // Busca todos los checkboxes con el nombre 'sintomas_seleccionados' que estén marcados
+        const checkedSymptoms = document.querySelectorAll('input[name="sintomas_seleccionados"]:checked');
+
+        // Si no hay ninguno marcado...
+        if (checkedSymptoms.length === 0) {
+            // 1. Evita que el formulario se envíe (y que la página cambie)
+            event.preventDefault();
+
+            // 2. Muestra el mensaje de error
+            errorMessageDiv.style.display = 'block';
+        } else {
+            // Si hay al menos uno marcado, asegúrate de que el mensaje de error esté oculto
+            errorMessageDiv.style.display = 'none';
+            // El formulario se enviará normalmente
+        }
+    });
+    </script>
 </body>
 </html>
