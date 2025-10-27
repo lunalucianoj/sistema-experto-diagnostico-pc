@@ -44,20 +44,25 @@ async def mostrar_sintomas_por_categoria(request: Request, categoria: str):
         "hechos": hechos
     })
 
+# Reemplaza el endpoint existente en api_server.py
 @app.post("/diagnostico", response_class=HTMLResponse)
 async def diagnosticar_desde_web(request: Request, sintomas_seleccionados: List[str] = Form(...)):
-    """ Recibe la lista de IDs de síntomas seleccionados y muestra el diagnóstico. """
-    # Convertimos la lista de IDs (que llega del form) a una lista
-    # hechos_activos = request.form.getlist("sintomas_seleccionados") # Forma alternativa de obtener la lista
+    """ Recibe la lista de IDs de síntomas, obtiene diagnóstico y síntomas, y muestra el resultado. """
     
-    diagnostico_resultado = motor_de_inferencia(sintomas_seleccionados)
+    # Llamamos al motor, que ahora devuelve un diccionario
+    resultado_motor = motor_de_inferencia(sintomas_seleccionados)
     
-    # Reutilizamos la plantilla de síntomas para mostrar el resultado
-    # Necesitamos recuperar la categoría (podríamos pasarla oculta o deducirla)
-    # Por simplicidad, por ahora no mostramos la categoría en el resultado
+    # Obtenemos las preguntas correspondientes a los IDs seleccionados
+    # Usamos HECHOS_POR_ID que ya está definido globalmente en logica.py
+    # Necesitamos importarlo en api_server.py
+    from motor.logica import HECHOS_POR_ID # Añadir esta importación al principio de api_server.py
+    
+    sintomas_preguntas = [HECHOS_POR_ID[id_hecho].pregunta for id_hecho in sintomas_seleccionados if id_hecho in HECHOS_POR_ID]
+
     return templates.TemplateResponse("resultado_diagnostico.html", {
         "request": request,
-        "diagnostico": diagnostico_resultado
+        "diagnostico": resultado_motor["diagnostico"], # Extraemos el diagnóstico
+        "sintomas_mostrados": sintomas_preguntas # Pasamos las preguntas
     })
 
 # --- Endpoint API (opcional, si quieres mantenerlo) ---

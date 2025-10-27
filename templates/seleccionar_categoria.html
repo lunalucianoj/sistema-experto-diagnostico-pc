@@ -2,14 +2,30 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Diagnóstico PC - Seleccionar Categoría</title>
+    <title>Sistema Experto - Diagnóstico PC</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .definitions { font-size: 0.9em; color: #555; margin-top: 30px; padding: 15px; background-color: #eee; border-radius: 5px; }
+        .definitions strong { color: #0056b3; }
+    </style>
 </head>
 <body>
-    <h1>Selecciona la Categoría del Problema</h1>
-    <div class="form-container" style="background-color: transparent; border: none; box-shadow: none;"> {% for categoria in categorias %}
+    <h1>Sistema Experto de Diagnóstico de Fallas en PC ⚙️</h1>
+    <p style="text-align: center; margin-bottom: 30px;">
+        Esta herramienta te guiará para identificar posibles problemas en tu computadora,
+        basado en los síntomas que observes.
+    </p>
+
+    <h2>Selecciona la Categoría del Problema</h2>
+    <div class="form-container" style="background-color: transparent; border: none; box-shadow: none; padding-top: 0;">
+        {% for categoria in categorias %}
         <a href="/sintomas/{{ categoria }}" class="btn">{{ categoria.capitalize() }}</a>
         {% endfor %}
+    </div>
+
+    <div class="definitions">
+        <p><strong>Hardware:</strong> Se refiere a las partes físicas de la computadora que puedes tocar (ej: monitor, teclado, disco duro, memoria RAM).</p>
+        <p><strong>Software:</strong> Se refiere a los programas y al sistema operativo que hacen funcionar la computadora (ej: Windows, aplicaciones, drivers).</p>
     </div>
 </body>
 </html>

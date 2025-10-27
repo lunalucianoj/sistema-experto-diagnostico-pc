@@ -4,8 +4,47 @@
     <meta charset="UTF-8">
     <title>Resultado del Diagnóstico</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .sintomas-usados {
+            margin-top: 30px; /* Incrementado para más espacio */
+            margin-bottom: 25px; /* Añadido espacio debajo */
+            padding: 15px;
+            background-color: #f8f9fa; /* Fondo más sutil */
+            border: 1px solid #dee2e6; /* Borde suave */
+            border-radius: 5px;
+            font-size: 0.9em;
+            text-align: left; /* Alineado a la izquierda */
+        }
+        .sintomas-usados h3 {
+            margin-top: 0;
+            margin-bottom: 10px; /* Espacio bajo el título */
+            color: #495057; /* Color más suave */
+            font-size: 1.1em; /* Ligeramente más grande */
+        }
+        .sintomas-usados ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+            list-style: disc; /* Estilo de viñeta */
+        }
+         .sintomas-usados li {
+            margin-bottom: 5px; /* Espacio entre síntomas */
+         }
+    </style>
 </head>
-<body style="text-align: center;"> <h1>Resultado del Diagnóstico</h1>
+<body style="text-align: center;">
+    <h1>Resultado del Diagnóstico</h1>
+
+    {% if sintomas_mostrados %}
+    <div class="sintomas-usados">
+        <h3>Síntomas considerados:</h3>
+        <ul>
+            {% for pregunta in sintomas_mostrados %}
+            <li>{{ pregunta }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
     <div class="resultado">
         <p>{{ diagnostico }}</p>
     </div>

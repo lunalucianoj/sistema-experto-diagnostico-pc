@@ -68,36 +68,80 @@ def get_hechos_por_categoria(categoria: str) -> List[Hecho]:
 def get_categorias() -> List[str]:
     return sorted(list(set(hecho.categoria for hecho in BASE_CONOCIMIENTO.hechos)))
 
-# --- Motor de Inferencia (sin cambios) ---
 def _llamar_modulo_ml(hechos_activos_ids: List[str]) -> str:
+     """ Placeholder MEJORADO para la integración del módulo ML. """
      print(f"INFO: Reglas no concluyentes para {hechos_activos_ids}. Pasando a módulo ML (simulado).")
-     return ("Diagnóstico: Las reglas no fueron suficientes. Un análisis más avanzado (ML) sugiere investigar posibles conflictos de software o drivers recientes. "
+     
+     # Lógica simulada simple: buscar palabras clave en los síntomas
+     sintomas_texto = " ".join(HECHOS_POR_ID[id_hecho].pregunta for id_hecho in hechos_activos_ids if id_hecho in HECHOS_POR_ID).lower()
+     
+     sugerencia_ml = "investigar posibles conflictos de software o drivers recientes." # Sugerencia por defecto
+     
+     if "lento" in sintomas_texto and "disco" not in sintomas_texto and "caliente" not in sintomas_texto:
+         sugerencia_ml = "optimizar el sistema operativo (programas de inicio, espacio en disco) o buscar malware."
+     elif "wifi" in sintomas_texto or "internet" in sintomas_texto:
+         sugerencia_ml = "revisar la configuración de red, reiniciar el router/módem o actualizar los drivers de red."
+     elif "video" in sintomas_texto or "pantalla" in sintomas_texto or "imagen" in sintomas_texto:
+          sugerencia_ml = "actualizar los drivers de la tarjeta gráfica o verificar las conexiones de video."
+          
+     return (f"Diagnóstico: Las reglas exactas no coinciden. Un análisis avanzado (ML) sugiere {sugerencia_ml} "
              "Considere proporcionar más detalles en la sección 'Otro Problema'. (Módulo ML simulado)")
 
-def motor_de_inferencia(hechos_activos_ids: List[str]) -> str:
+def motor_de_inferencia(hechos_activos_ids: List[str]) -> Dict[str, Any]: # Cambiado para devolver un Diccionario
+    """
+    Motor de inferencia v3.1: Devuelve un diccionario con diagnóstico y síntomas.
+    """
     set_hechos_activos = set(hechos_activos_ids)
-    if not set_hechos_activos: return "Por favor, selecciona al menos un síntoma."
-    diagnostico_encontrado = None
-    max_condiciones_cumplidas = -1
-    for regla in BASE_CONOCIMIENTO.reglas:
-        condiciones_cumplidas = True
-        num_condiciones = 0
-        for cond in regla.condiciones:
-            num_condiciones += 1
-            if cond.startswith("NOT:"):
-                cond_id = cond.replace("NOT:", "")
-                if cond_id in set_hechos_activos:
-                    condiciones_cumplidas = False; break
-            else:
-                if cond not in set_hechos_activos:
-                    condiciones_cumplidas = False; break
-        if condiciones_cumplidas and num_condiciones > max_condiciones_cumplidas:
-            max_condiciones_cumplidas = num_condiciones
-            diagnostico_encontrado = regla.diagnostico
-    if diagnostico_encontrado: return diagnostico_encontrado
-    if len(set_hechos_activos) == 1:
-        sintoma_unico_id = list(set_hechos_activos)[0]
-        if BASE_CONOCIMIENTO.diagnosticos_sintoma_unico and sintoma_unico_id in BASE_CONOCIMIENTO.diagnosticos_sintoma_unico:
-             # Corrección: Asegurarse de que el diccionario existe antes de acceder
-             return BASE_CONOCIMIENTO.diagnosticos_sintoma_unico[sintoma_unico_id]
-    return _llamar_modulo_ml(hechos_activos_ids)
+    
+    resultado_final: str = "Diagnóstico no determinado" # Valor inicial por defecto
+    
+    if not set_hechos_activos:
+         resultado_final = "Por favor, selecciona al menos un síntoma."
+    else:
+        diagnostico_encontrado = None
+        max_condiciones_cumplidas = -1
+
+        # 1. Búsqueda de Regla Exacta
+        for regla in BASE_CONOCIMIENTO.reglas:
+            condiciones_cumplidas = True
+            num_condiciones = 0
+            condiciones_de_esta_regla = set() # Guardamos las condiciones para saber qué tan específica es
+
+            for cond in regla.condiciones:
+                num_condiciones += 1
+                condiciones_de_esta_regla.add(cond.replace("NOT:", "")) # Añadimos el ID base
+                if cond.startswith("NOT:"):
+                    cond_id = cond.replace("NOT:", "")
+                    if cond_id in set_hechos_activos:
+                        condiciones_cumplidas = False; break
+                else:
+                    if cond not in set_hechos_activos:
+                        condiciones_cumplidas = False; break
+            
+            # Si se cumplen y es más específica que la anterior encontrada
+            if condiciones_cumplidas and num_condiciones > max_condiciones_cumplidas:
+                 # ¡Importante! Asegurarse que la regla usa TODOS los síntomas activos para ser considerada la mejor
+                 # Opcional: Podrías querer la regla que usa MÁS síntomas activos, incluso si no son todos.
+                 # Por ahora, buscamos la regla más específica que se cumpla con los síntomas dados.
+                max_condiciones_cumplidas = num_condiciones
+                diagnostico_encontrado = regla.diagnostico
+
+        # 2. Asignar resultado si se encontró regla
+        if diagnostico_encontrado:
+            resultado_final = diagnostico_encontrado
+        # 3. Si no, y hay un solo síntoma ambiguo
+        elif len(set_hechos_activos) == 1:
+            sintoma_unico_id = list(set_hechos_activos)[0]
+            if BASE_CONOCIMIENTO.diagnosticos_sintoma_unico and sintoma_unico_id in BASE_CONOCIMIENTO.diagnosticos_sintoma_unico:
+                resultado_final = BASE_CONOCIMIENTO.diagnosticos_sintoma_unico[sintoma_unico_id]
+            else: # Si es un síntoma único pero no está en los sugeridos, ir a ML
+                 resultado_final = _llamar_modulo_ml(hechos_activos_ids)
+        # 4. Si no aplican los anteriores (múltiples síntomas sin regla)
+        else:
+             resultado_final = _llamar_modulo_ml(hechos_activos_ids)
+
+    # Devolver un diccionario con el diagnóstico y los IDs de los síntomas pasados
+    return {
+        "diagnostico": resultado_final,
+        "sintomas_pasados_ids": hechos_activos_ids
+    }
