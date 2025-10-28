@@ -2,53 +2,125 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagnóstico PC - Síntomas de {{ categoria }}</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/styles.css?v=2.4">
 </head>
 <body>
-    <h1>Síntomas de {{ categoria }}</h1>
-    <div class="form-container">
-        <form action="/diagnostico" method="post">
+    <div class="container">
+    <!-- Logo SmartSolve en esquina -->
+    <img src="/imgs/SmartSolve.jpeg" alt="SmartSolve" class="corner-logo" loading="lazy">
+
+    <!-- Barra de Progreso -->
+        <div class="progress-bar">
+            <div class="progress-step completed">
+                <div class="progress-step-circle">✓</div>
+                <div class="progress-step-label">Categoría</div>
+            </div>
+            <div class="progress-step active">
+                <div class="progress-step-circle">2</div>
+                <div class="progress-step-label">Síntomas</div>
+            </div>
+            <div class="progress-step">
+                <div class="progress-step-circle">3</div>
+                <div class="progress-step-label">Diagnóstico</div>
+            </div>
+        </div>
+
+        <h1>{% if categoria == 'Hardware' %}🔧{% else %}💻{% endif %} Síntomas de {{ categoria }}</h1>
+        
+        <!-- Contador de selección -->
+        <div class="selection-counter" id="counter">
+            <span id="count">0</span> síntoma(s) seleccionado(s)
+        </div>
+
+        <form action="/diagnostico" method="post" id="diagnostic-form">
             <h2>Selecciona los síntomas presentes:</h2>
             <div class="symptom-grid">
                 {% for hecho in hechos %}
-                <div class="symptom-item">
-                    <input type="checkbox" name="sintomas_seleccionados" value="{{ hecho.id }}" id="{{ hecho.id }}">
+                <div class="symptom-item" onclick="toggleCheckbox('{{ hecho.id }}')">
+                    <input type="checkbox" name="sintomas_seleccionados" value="{{ hecho.id }}" id="{{ hecho.id }}" onclick="event.stopPropagation();">
                     <label for="{{ hecho.id }}">{{ hecho.pregunta }}</label>
                 </div>
                 {% endfor %}
             </div>
-            </div> <div id="error-message" style="color: red; margin-top: 15px; text-align: center; font-weight: bold; display: none;">
-                Por favor, selecciona al menos un síntoma.
+            
+            <div id="error-message" style="color: #f5576c; margin-top: 15px; padding: 12px; text-align: center; font-weight: bold; display: none; background-color: rgba(245, 87, 108, 0.1); border-radius: 8px; border: 2px solid #f5576c;">
+                ⚠️ Por favor, selecciona al menos un síntoma.
             </div>
-            <button type="submit">Obtener Diagnóstico</button>
+            
+            <button type="submit">🔍 Obtener Diagnóstico</button>
         </form>
-        <a href="/" class="btn btn-secondary" style="margin-top: 25px;">&laquo; Volver a Categorías</a>
-        <a href="/otro-problema" class="btn btn-secondary" style="margin-top: 10px;">¿Tu problema no está aquí? Descríbelo</a>
+        
+        <a href="/" class="btn btn-secondary" style="margin-top: 15px;">⬅️ Volver a Categorías</a>
+        <a href="/otro-problema" class="btn btn-secondary" style="margin-top: 10px;">📝 ¿Tu problema no está aquí? Descríbelo</a>
     </div>
-    <script>
-    // Selecciona el formulario y el div del mensaje de error
-    const form = document.querySelector('form[action="/diagnostico"]');
-    const errorMessageDiv = document.getElementById('error-message');
 
-    // Añade un 'escuchador' al evento de envío del formulario
+    <!-- Loading Spinner -->
+    <div class="spinner-overlay" id="spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+    // Función para alternar checkbox al hacer clic en el div completo
+    function toggleCheckbox(id) {
+        const checkbox = document.getElementById(id);
+        checkbox.checked = !checkbox.checked;
+        updateCounter();
+        updateItemStyles();
+    }
+
+    // Actualizar contador de síntomas seleccionados
+    function updateCounter() {
+        const checkedSymptoms = document.querySelectorAll('input[name="sintomas_seleccionados"]:checked');
+        document.getElementById('count').textContent = checkedSymptoms.length;
+    }
+
+    // Actualizar estilos visuales de items seleccionados
+    function updateItemStyles() {
+        const items = document.querySelectorAll('.symptom-item');
+        items.forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            if (checkbox.checked) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+    }
+
+    // Validación del formulario
+    const form = document.getElementById('diagnostic-form');
+    const errorMessageDiv = document.getElementById('error-message');
+    const spinner = document.getElementById('spinner');
+
     form.addEventListener('submit', function(event) {
-        // Busca todos los checkboxes con el nombre 'sintomas_seleccionados' que estén marcados
         const checkedSymptoms = document.querySelectorAll('input[name="sintomas_seleccionados"]:checked');
 
-        // Si no hay ninguno marcado...
         if (checkedSymptoms.length === 0) {
-            // 1. Evita que el formulario se envíe (y que la página cambie)
             event.preventDefault();
-
-            // 2. Muestra el mensaje de error
             errorMessageDiv.style.display = 'block';
+            // Scroll suave al mensaje de error
+            errorMessageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
-            // Si hay al menos uno marcado, asegúrate de que el mensaje de error esté oculto
             errorMessageDiv.style.display = 'none';
-            // El formulario se enviará normalmente
+            // Mostrar spinner mientras se procesa
+            spinner.style.display = 'flex';
         }
     });
+
+    // Actualizar contador al cargar checkboxes manualmente
+    document.querySelectorAll('input[name="sintomas_seleccionados"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateCounter();
+            updateItemStyles();
+            errorMessageDiv.style.display = 'none';
+        });
+    });
+
+    // Inicializar contador al cargar la página
+    updateCounter();
+    updateItemStyles();
     </script>
 </body>
 </html>

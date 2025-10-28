@@ -2,30 +2,51 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Experto - Diagnóstico PC</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <style>
-        .definitions { font-size: 0.9em; color: #555; margin-top: 30px; padding: 15px; background-color: #eee; border-radius: 5px; }
-        .definitions strong { color: #0056b3; }
-    </style>
+    <link rel="stylesheet" href="/static/styles.css?v=2.4">
 </head>
 <body>
-    <h1>Sistema Experto de Diagnóstico de Fallas en PC ⚙️</h1>
-    <p style="text-align: center; margin-bottom: 30px;">
-        Esta herramienta te guiará para identificar posibles problemas en tu computadora,
-        basado en los síntomas que observes.
-    </p>
+    <div class="container">
+    <!-- Logo SmartSolve en esquina -->
+    <img src="/imgs/SmartSolve.jpeg" alt="SmartSolve" class="corner-logo" loading="lazy">
 
-    <h2>Selecciona la Categoría del Problema</h2>
-    <div class="form-container" style="background-color: transparent; border: none; box-shadow: none; padding-top: 0;">
-        {% for categoria in categorias %}
-        <a href="/sintomas/{{ categoria }}" class="btn">{{ categoria.capitalize() }}</a>
-        {% endfor %}
-    </div>
+    <!-- Barra de Progreso -->
+        <div class="progress-bar">
+            <div class="progress-step active">
+                <div class="progress-step-circle">1</div>
+                <div class="progress-step-label">Categoría</div>
+            </div>
+            <div class="progress-step">
+                <div class="progress-step-circle">2</div>
+                <div class="progress-step-label">Síntomas</div>
+            </div>
+            <div class="progress-step">
+                <div class="progress-step-circle">3</div>
+                <div class="progress-step-label">Diagnóstico</div>
+            </div>
+        </div>
 
-    <div class="definitions">
-        <p><strong>Hardware:</strong> Se refiere a las partes físicas de la computadora que puedes tocar (ej: monitor, teclado, disco duro, memoria RAM).</p>
-        <p><strong>Software:</strong> Se refiere a los programas y al sistema operativo que hacen funcionar la computadora (ej: Windows, aplicaciones, drivers).</p>
+        <h1>Sistema Experto de Diagnóstico</h1>
+        <p style="text-align: center; margin-bottom: 30px; color: #666;">
+            Esta herramienta te guiará para identificar posibles problemas en tu computadora,
+            basado en los síntomas que observes.
+        </p>
+
+        <h2>Selecciona la Categoría del Problema</h2>
+        <div style="margin-top: 20px;">
+            {% for categoria in categorias %}
+            <a href="/sintomas/{{ categoria }}" class="btn">
+                {% if categoria == 'hardware' %}🔧{% else %}💻{% endif %}
+                {{ categoria.capitalize() }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; border-left: 4px solid var(--primary);">
+            <p style="margin-bottom: 10px;"><strong style="color: var(--primary);">🔧 Hardware:</strong> Se refiere a las partes físicas de la computadora que puedes tocar (ej: monitor, teclado, disco duro, memoria RAM).</p>
+            <p style="margin: 0;"><strong style="color: var(--primary);">💻 Software:</strong> Se refiere a los programas y al sistema operativo que hacen funcionar la computadora (ej: Windows, aplicaciones, drivers).</p>
+        </div>
     </div>
 </body>
 </html>

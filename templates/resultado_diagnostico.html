@@ -2,54 +2,142 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultado del Diagnóstico</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <style>
-        .sintomas-usados {
-            margin-top: 30px; /* Incrementado para más espacio */
-            margin-bottom: 25px; /* Añadido espacio debajo */
-            padding: 15px;
-            background-color: #f8f9fa; /* Fondo más sutil */
-            border: 1px solid #dee2e6; /* Borde suave */
-            border-radius: 5px;
-            font-size: 0.9em;
-            text-align: left; /* Alineado a la izquierda */
-        }
-        .sintomas-usados h3 {
-            margin-top: 0;
-            margin-bottom: 10px; /* Espacio bajo el título */
-            color: #495057; /* Color más suave */
-            font-size: 1.1em; /* Ligeramente más grande */
-        }
-        .sintomas-usados ul {
-            padding-left: 20px;
-            margin-bottom: 0;
-            list-style: disc; /* Estilo de viñeta */
-        }
-         .sintomas-usados li {
-            margin-bottom: 5px; /* Espacio entre síntomas */
-         }
-    </style>
+    <link rel="stylesheet" href="/static/styles.css?v=2.4">
 </head>
-<body style="text-align: center;">
-    <h1>Resultado del Diagnóstico</h1>
+<body>
+    <div class="container">
+    <!-- Logo SmartSolve en esquina -->
+    <img src="/imgs/SmartSolve.jpeg" alt="SmartSolve" class="corner-logo" loading="lazy">
 
-    {% if sintomas_mostrados %}
-    <div class="sintomas-usados">
-        <h3>Síntomas considerados:</h3>
-        <ul>
-            {% for pregunta in sintomas_mostrados %}
-            <li>{{ pregunta }}</li>
-            {% endfor %}
-        </ul>
+    <!-- Barra de Progreso -->
+        <div class="progress-bar">
+            <div class="progress-step completed">
+                <div class="progress-step-circle">✓</div>
+                <div class="progress-step-label">Categoría</div>
+            </div>
+            <div class="progress-step completed">
+                <div class="progress-step-circle">✓</div>
+                <div class="progress-step-label">Síntomas</div>
+            </div>
+            <div class="progress-step active">
+                <div class="progress-step-circle">3</div>
+                <div class="progress-step-label">Diagnóstico</div>
+            </div>
+        </div>
+
+        <h1>✅ Resultado del Diagnóstico</h1>
+
+        {% if sintomas_mostrados %}
+        <div style="margin-top: 30px; margin-bottom: 25px; padding: 20px; background-color: #f8f9fa; border-left: 4px solid var(--primary); border-radius: 10px;">
+            <h3 style="margin-top: 0; margin-bottom: 15px; color: var(--primary); font-size: 1.1em;">
+                📋 Síntomas considerados:
+            </h3>
+            <ul style="padding-left: 25px; margin-bottom: 0; list-style: none;">
+                {% for pregunta in sintomas_mostrados %}
+                <li style="margin-bottom: 8px; position: relative; padding-left: 10px;">
+                    <span style="color: var(--primary); position: absolute; left: -15px;">▪</span>
+                    {{ pregunta }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="resultado">
+            <h2>🔍 Diagnóstico</h2>
+            <p style="font-size: 1.05em; line-height: 1.8;">{{ diagnostico }}</p>
+        </div>
+
+        <!-- Botones de acción -->
+        <button onclick="window.print()" class="btn" style="margin-top: 30px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            🖨️ Imprimir Diagnóstico
+        </button>
+        
+        <button onclick="copyDiagnostic()" class="btn btn-secondary" style="margin-top: 10px;">
+            📋 Copiar al Portapapeles
+        </button>
+
+        <a href="/" class="btn" style="margin-top: 10px;">🔄 Realizar Otro Diagnóstico</a>
+        <a href="/otro-problema" class="btn btn-secondary" style="margin-top: 10px;">📝 Detallar Otro Problema</a>
+
+        <!-- Mensaje de confirmación de copia -->
+        <div id="copy-notification" style="display: none; margin-top: 15px; padding: 12px; background-color: rgba(37, 99, 235, 0.10); border: 2px solid var(--primary); border-radius: 8px; color: var(--primary); font-weight: bold; text-align: center;">
+            ✅ Diagnóstico copiado al portapapeles
+        </div>
     </div>
-    {% endif %}
 
-    <div class="resultado">
-        <p>{{ diagnostico }}</p>
+    <!-- Datos para JavaScript (sin sintaxis Jinja dentro del script) -->
+    <div id="diagnostic-data" style="display: none;"
+         data-diagnostico="{{ diagnostico }}"
+         data-sintomas='{% if sintomas_mostrados %}{{ sintomas_mostrados | tojson }}{% else %}[]{% endif %}'>
     </div>
 
-    <a href="/" class="btn" style="margin-top: 30px;">Realizar otro diagnóstico</a>
-    <a href="/otro-problema" class="btn btn-secondary" style="margin-top: 10px;">Detallar otro problema</a>
+    <script>
+    function copyDiagnostic() {
+        // Obtener datos del elemento oculto
+        const dataElement = document.getElementById('diagnostic-data');
+        const diagnostico = dataElement.getAttribute('data-diagnostico');
+        const sintomasJson = dataElement.getAttribute('data-sintomas');
+        
+        // Construir el texto completo del diagnóstico
+        let textToCopy = "=== DIAGNÓSTICO DE PC ===\n\n";
+        
+        try {
+            const sintomas = JSON.parse(sintomasJson);
+            if (sintomas && sintomas.length > 0) {
+                textToCopy += "SÍNTOMAS CONSIDERADOS:\n";
+                sintomas.forEach(function(pregunta) {
+                    textToCopy += "• " + pregunta + "\n";
+                });
+                textToCopy += "\n";
+            }
+        } catch (e) {
+            console.error('Error parsing sintomas:', e);
+        }
+        
+        textToCopy += "DIAGNÓSTICO:\n" + diagnostico + "\n\n";
+        textToCopy += "=========================\n";
+        textToCopy += "Generado por Sistema Experto de Diagnóstico PC";
+
+        // Copiar al portapapeles
+        navigator.clipboard.writeText(textToCopy).then(function() {
+            // Mostrar notificación de éxito
+            const notification = document.getElementById('copy-notification');
+            notification.style.display = 'block';
+            
+            // Ocultar después de 3 segundos
+            setTimeout(function() {
+                notification.style.display = 'none';
+            }, 3000);
+        }).catch(function(err) {
+            alert('Error al copiar: ' + err);
+        });
+    }
+
+    // Estilos de impresión
+    const style = document.createElement('style');
+    style.textContent = `
+        @media print {
+            body {
+                background: white !important;
+                padding: 20px;
+            }
+            .container {
+                box-shadow: none !important;
+                padding: 0;
+            }
+            .progress-bar, button, a, #copy-notification {
+                display: none !important;
+            }
+            .resultado {
+                border: 2px solid var(--primary);
+                page-break-inside: avoid;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    </script>
 </body>
 </html>

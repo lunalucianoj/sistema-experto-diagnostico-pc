@@ -24,7 +24,10 @@ app = FastAPI(title="Sistema Experto de Diagnóstico de PC v3.3")
 templates = Jinja2Templates(directory="templates")
 
 # Monta la carpeta 'static' para servir archivos CSS, JS, etc., bajo la URL '/static'.
+# Rutas de archivos estáticos
 app.mount("/static", StaticFiles(directory="static"), name="static")
+# Servir los logos que el usuario colocó en la carpeta 'imgs' en la raíz del proyecto
+app.mount("/imgs", StaticFiles(directory="imgs"), name="imgs")
 
 # --- Endpoints para la Interfaz Web Dinámica ---
 

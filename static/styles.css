@@ -1,157 +1,219 @@
-/* Archivo: static/styles.css */
+/* Archivo: static/styles.css - Paleta Azul/Celeste/Gris v2.4 (2025-10-28) */
 
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Variables de tema */
+:root {
+  --primary: #2563eb;      /* azul */
+  --primary-dark: #1e40af; /* azul oscuro */
+  --accent: #0ea5e9;       /* celeste */
+  --text: #111827;         /* casi negro */
+  --muted: #6b7280;        /* gris medio */
+  --border: #e5e7eb;       /* gris claro */
+}
+
+/* Layout base */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    max-width: 700px;
-    margin: 40px auto;
-    padding: 25px;
-    background-color: #f8f9fa;
-    color: #343a40;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+  min-height: 100vh;
+  color: var(--text);
 }
 
-h1, h2 {
-    text-align: center;
-    color: #0056b3; /* Un azul más oscuro */
-    margin-bottom: 25px;
+.container {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: fadeIn 0.5s ease-in;
+  position: relative; /* para posicionar logo si se usa */
 }
 
-p {
-    line-height: 1.6;
-    margin-bottom: 15px;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-a {
-    color: #007bff;
-    text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
+/* Tipografía y enlaces */
+h1 {
+  text-align: center;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 2.2em;
+  margin-bottom: 15px;
+  font-weight: 700;
 }
 
-/* Estilos para Botones y Enlaces como Botones */
+h2 {
+  text-align: center;
+  color: var(--primary-dark);
+  margin-bottom: 25px;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Botones */
 .btn, button {
-    display: block;
-    width: 100%;
-    padding: 12px 15px;
-    margin: 15px 0;
-    font-size: 16px;
-    font-weight: 500;
-    color: white;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    transition: background-color 0.2s ease-in-out;
-    box-sizing: border-box; /* Asegura que padding no aumente el ancho */
+  display: block;
+  width: 100%;
+  padding: 15px 20px;
+  margin: 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(37,99,235,0.35);
+  position: relative;
+  overflow: hidden;
 }
+
+.btn::before, button::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: rgba(255,255,255,0.2);
+  transition: left 0.5s ease;
+}
+
+.btn:hover::before, button:hover::before { left: 100%; }
+
 .btn:hover, button:hover {
-    background-color: #0056b3;
-    color: white; /* Asegura que el texto siga siendo blanco */
-    text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37,99,235,0.55);
 }
+
 button[type="submit"] {
-    background-color: #28a745; /* Verde para confirmar */
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  box-shadow: 0 4px 15px rgba(30,64,175,0.4);
 }
-button[type="submit"]:hover {
-    background-color: #218838;
-}
-.btn-secondary { /* Para enlaces como 'Volver' o 'Otro Problema' */
-    background-color: #6c757d;
-}
-.btn-secondary:hover {
-    background-color: #5a6268;
-}
-.btn-warning { /* Para 'Enviar Descripción' */
-    background-color: #ffc107;
-    color: #333;
-}
-.btn-warning:hover {
-    background-color: #e0a800;
-    color: #333;
-}
+button[type="submit"]:hover { box-shadow: 0 6px 20px rgba(30,64,175,0.6); }
 
-/* Contenedores de Formularios */
-.form-container {
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    margin-top: 20px;
-    border: 1px solid #e9ecef;
+.btn-secondary {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  box-shadow: 0 4px 15px rgba(107,114,128,0.35);
 }
+.btn-secondary:hover { box-shadow: 0 6px 20px rgba(107,114,128,0.55); }
 
-/* Grid para Síntomas */
+.btn-warning {
+  background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%);
+  box-shadow: 0 4px 15px rgba(14,165,233,0.35);
+}
+.btn-warning:hover { box-shadow: 0 6px 20px rgba(14,165,233,0.55); }
+
+/* Grilla de síntomas */
 .symptom-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin: 25px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+  margin: 25px 0;
 }
+
 .symptom-item {
-    display: flex;
-    align-items: center;
-    background-color: #fff;
-    padding: 12px;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    transition: box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 .symptom-item:hover {
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  border-color: var(--primary);
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.2);
+  transform: translateY(-2px);
 }
-input[type="checkbox"] {
-    margin-right: 12px;
-    transform: scale(1.3);
-    cursor: pointer;
-}
-label {
-    cursor: pointer;
+.symptom-item.selected {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(14,165,233,0.10) 100%);
 }
 
-/* Resultado del Diagnóstico */
+input[type="checkbox"] {
+  margin-right: 12px; width: 20px; height: 20px; cursor: pointer;
+  accent-color: var(--primary);
+}
+label { cursor: pointer; flex: 1; font-size: 15px; color: #333; }
+
+/* Resultado del diagnóstico */
 .resultado {
-    margin-top: 30px;
-    padding: 20px;
-    background-color: #e7f3fe;
-    border-left: 5px solid #007bff;
-    text-align: left;
-    border-radius: 5px;
-    line-height: 1.7;
+  margin-top: 30px; padding: 25px;
+  background: linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(14,165,233,0.10) 100%);
+  border-left: 5px solid var(--primary);
+  border-radius: 12px; line-height: 1.8;
+  box-shadow: 0 4px 15px rgba(37,99,235,0.15);
 }
-.resultado h2 {
-    margin-top: 0;
-    text-align: left;
-    color: #0056b3;
-}
+.resultado h2 { margin-top: 0; margin-bottom: 15px; text-align: left; color: var(--primary); font-size: 1.4em; }
+.resultado p { color: #333; margin-bottom: 10px; }
 
 /* Formulario Detallar Problema */
-.form-group {
-    margin-bottom: 20px;
-}
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #495057;
-}
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #495057; }
 select, textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 1rem;
+  width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; font-size: 1rem;
 }
-textarea {
-    height: 150px;
-    resize: vertical;
-}
+textarea { height: 150px; resize: vertical; }
 .mensaje-exito {
-    color: #28a745;
-    margin-top: 20px;
-    text-align: center;
-    font-weight: bold;
+  color: #11998e; margin-top: 20px; padding: 15px; text-align: center; font-weight: bold;
+  background-color: rgba(17,153,142,0.1); border-radius: 8px; border: 2px solid #11998e;
+}
+
+/* Barra de progreso */
+.progress-bar { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; }
+.progress-bar::before { content: ''; position: absolute; top: 20px; left: 0; right: 0; height: 3px; background-color: var(--border); z-index: 1; }
+.progress-step { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2; flex: 1; }
+.progress-step-circle {
+  width: 40px; height: 40px; border-radius: 50%; background-color: #e9ecef; color: #6c757d;
+  display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 8px; transition: all 0.3s ease;
+}
+.progress-step.active .progress-step-circle {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.35);
+}
+.progress-step.completed .progress-step-circle { background-color: var(--accent); color: #fff; }
+.progress-step-label { font-size: 12px; color: #6c757d; text-align: center; }
+.progress-step.active .progress-step-label { color: var(--primary); font-weight: 600; }
+
+/* Contador de selección */
+.selection-counter {
+  text-align: center; padding: 12px; margin: 20px 0;
+  background: linear-gradient(135deg, rgba(37,99,235,0.10) 0%, rgba(14,165,233,0.10) 100%);
+  border-radius: 8px; font-weight: 600; color: var(--primary);
+}
+
+/* Loading Spinner */
+.spinner-overlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;
+}
+.spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+@keyframes spin { 0%{ transform: rotate(0deg);} 100%{ transform: rotate(360deg);} }
+
+/* Logo en esquina (oculto por ahora) */
+.corner-logo { display: none !important; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  body { padding: 10px; }
+  .container { padding: 20px; }
+  h1 { font-size: 1.8em; }
+  .symptom-grid { grid-template-columns: 1fr; }
 }
