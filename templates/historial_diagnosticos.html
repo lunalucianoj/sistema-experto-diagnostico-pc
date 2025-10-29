@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Diagnósticos</title>
+    <link rel="stylesheet" href="/static/styles.css?v=2.4">
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Historial de Diagnósticos</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Aquí puedes revisar todos los diagnósticos realizados anteriormente.
+        </p>
+
+        {% if diagnosticos %}
+            {% for diag in diagnosticos %}
+            <div style="margin-bottom: 25px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; border-left: 4px solid var(--primary);">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                    <div>
+                        <h3 style="margin: 0; color: var(--primary); font-size: 1.1em;">
+                            📅 {{ diag.fecha }}
+                        </h3>
+                        <p style="margin: 5px 0 0 0; font-size: 0.85em; color: #888;">
+                            ID: {{ diag.id }}
+                        </p>
+                    </div>
+                    {% if diag.feedback %}
+                        {% if diag.feedback == 'si' %}
+                        <span style="padding: 5px 12px; background-color: #d1fae5; color: #065f46; border-radius: 20px; font-size: 0.85em; font-weight: 600;">
+                            ✅ Sirvió
+                        </span>
+                        {% else %}
+                        <span style="padding: 5px 12px; background-color: #fee2e2; color: #991b1b; border-radius: 20px; font-size: 0.85em; font-weight: 600;">
+                            ❌ No sirvió
+                        </span>
+                        {% endif %}
+                    {% else %}
+                    <span style="padding: 5px 12px; background-color: #e5e7eb; color: #6b7280; border-radius: 20px; font-size: 0.85em; font-weight: 600;">
+                        ⏳ Sin feedback
+                    </span>
+                    {% endif %}
+                </div>
+
+                {% if diag.sintomas_texto %}
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: var(--primary);">Síntomas:</strong>
+                    <ul style="margin: 5px 0 0 20px; padding: 0;">
+                        {% for sintoma in diag.sintomas_texto %}
+                        <li style="margin-bottom: 3px; color: #333;">{{ sintoma }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div>
+                    <strong style="color: var(--primary);">Diagnóstico:</strong>
+                    <p style="margin: 5px 0 0 0; color: #333; line-height: 1.6;">
+                        {{ diag.diagnostico }}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 40px; background-color: #f8f9fa; border-radius: 10px; margin-top: 20px;">
+                <p style="font-size: 1.1em; color: #666; margin: 0;">
+                    📭 No hay diagnósticos registrados aún.
+                </p>
+                <p style="margin-top: 10px; color: #888;">
+                    Los diagnósticos aparecerán aquí una vez que realices uno.
+                </p>
+            </div>
+        {% endif %}
+
+        <a href="/" class="btn" style="margin-top: 30px;">🏠 Volver al Inicio</a>
+    </div>
+</body>
+</html>

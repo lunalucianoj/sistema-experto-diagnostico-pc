@@ -1,0 +1,20 @@
+[
+  {
+    "id": "user_20251028_195812_653218",
+    "fecha": "2025-10-28 19:58:12",
+    "categoria": "hardware",
+    "sintoma": "la pantalla parpadea constantemente",
+    "diagnostico": "problema con el cable, revisar la conexión",
+    "temporal": true,
+    "timestamp": 1761692292.653252
+  },
+  {
+    "id": "user_20251028_211716_076078",
+    "fecha": "2025-10-28 21:17:16",
+    "categoria": "hardware",
+    "sintoma": "a mi teclado no le funciona la ñ",
+    "diagnostico": "verificar configuración de idioma y si es un problema de la tecla realizar una limpieza",
+    "temporal": true,
+    "timestamp": 1761697036.076102
+  }
+]

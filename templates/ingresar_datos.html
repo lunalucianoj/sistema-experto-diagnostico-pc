@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingresar Nuevos Datos</title>
+    <link rel="stylesheet" href="/static/styles.css?v=2.4">
+    <style>
+        .dato-card {
+            margin-bottom: 20px;
+            padding: 18px;
+            background-color: #f0f9ff;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+        }
+        .dato-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .dato-fecha {
+            font-size: 0.85em;
+            color: #888;
+        }
+        .badge-categoria {
+            margin-left: 15px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .badge-categoria.hardware {
+            background-color: #dbeafe;
+        }
+        .badge-categoria.software {
+            background-color: #e0f2fe;
+        }
+        .badge-temporal {
+            padding: 4px 10px;
+            background-color: #fef3c7;
+            color: #92400e;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        .dato-content {
+            margin-bottom: 10px;
+        }
+        .dato-label {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .dato-texto {
+            margin: 5px 0 0 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>➕ Ingresar Nuevos Datos al Sistema</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Ayúdanos a mejorar el sistema experto agregando nuevos síntomas y diagnósticos.
+            Los datos se guardarán de forma temporal para revisión.
+        </p>
+
+        {% if mensaje_exito %}
+            <div class="mensaje-exito">
+                <p style="margin: 0; font-size: 1.1em;">✅ {{ mensaje_exito }}</p>
+            </div>
+        {% endif %}
+
+        <form action="/guardar-nuevo-dato" method="post" id="form-nuevo-dato">
+            <div class="form-group">
+                <label for="categoria">🏷️ Categoría:</label>
+                <select name="categoria" id="categoria" required>
+                    <option value="" disabled selected>-- Selecciona una categoría --</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat }}">{% if cat == 'hardware' %}🔧{% else %}💻{% endif %} {{ cat.capitalize() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sintoma">🔍 Descripción del Síntoma:</label>
+                <textarea name="sintoma" id="sintoma" placeholder="Ej: La pantalla parpadea constantemente" required style="height: 100px;"></textarea>
+                <div style="text-align: right; margin-top: 5px; font-size: 0.85em; color: #888;">
+                    <span id="char-count-sintoma">0</span> caracteres
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="diagnostico">💡 Diagnóstico / Solución:</label>
+                <textarea name="diagnostico" id="diagnostico" placeholder="Ej: Problema con el cable de video o drivers de la tarjeta gráfica. Revisar conexiones y actualizar drivers." required style="height: 120px;"></textarea>
+                <div style="text-align: right; margin-top: 5px; font-size: 0.85em; color: #888;">
+                    <span id="char-count-diagnostico">0</span> caracteres
+                </div>
+            </div>
+
+            <button type="submit" class="btn">💾 Guardar Nuevo Dato</button>
+        </form>
+
+        <!-- Mostrar datos guardados previamente -->
+        {% if datos_guardados %}
+        <div style="margin-top: 40px;">
+            <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">
+                📋 Datos Ingresados por Usuarios
+            </h2>
+            <p style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 20px;">
+                Estos datos se muestran de forma temporal en el sistema para revisión.
+            </p>
+
+            {% for dato in datos_guardados|reverse %}
+            <div class="dato-card">
+                <div class="dato-header">
+                    <div>
+                        <span class="dato-fecha">
+                            📅 {{ dato.fecha }}
+                        </span>
+                        <span class="badge-categoria {{ dato.categoria }}">
+                            {% if dato.categoria == 'hardware' %}🔧 Hardware{% else %}💻 Software{% endif %}
+                        </span>
+                    </div>
+                    <span class="badge-temporal">
+                        ⏳ TEMPORAL
+                    </span>
+                </div>
+
+                <div class="dato-content">
+                    <strong class="dato-label">Síntoma:</strong>
+                    <p class="dato-texto">{{ dato.sintoma }}</p>
+                </div>
+
+                <div class="dato-content">
+                    <strong class="dato-label">Diagnóstico:</strong>
+                    <p class="dato-texto">{{ dato.diagnostico }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap;">
+            <a href="/" class="btn btn-secondary" style="flex: 1; min-width: 200px;">🏠 Volver al Inicio</a>
+            <a href="/historial-diagnosticos" class="btn" style="flex: 1; min-width: 200px;">📊 Ver Historial</a>
+        </div>
+    </div>
+
+    <script>
+    // Contador de caracteres para síntoma
+    const sintomaTextarea = document.getElementById('sintoma');
+    const charCountSintoma = document.getElementById('char-count-sintoma');
+    
+    if (sintomaTextarea && charCountSintoma) {
+        sintomaTextarea.addEventListener('input', function() {
+            charCountSintoma.textContent = this.value.length;
+        });
+    }
+
+    // Contador de caracteres para diagnóstico
+    const diagnosticoTextarea = document.getElementById('diagnostico');
+    const charCountDiagnostico = document.getElementById('char-count-diagnostico');
+    
+    if (diagnosticoTextarea && charCountDiagnostico) {
+        diagnosticoTextarea.addEventListener('input', function() {
+            charCountDiagnostico.textContent = this.value.length;
+        });
+    }
+
+    // Validación del formulario
+    const form = document.getElementById('form-nuevo-dato');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const sintoma = sintomaTextarea.value.trim();
+            const diagnostico = diagnosticoTextarea.value.trim();
+            
+            if (sintoma.length < 10) {
+                e.preventDefault();
+                alert('⚠️ Por favor, describe el síntoma con más detalle (al menos 10 caracteres).');
+                return false;
+            }
+            
+            if (diagnostico.length < 20) {
+                e.preventDefault();
+                alert('⚠️ Por favor, proporciona un diagnóstico más completo (al menos 20 caracteres).');
+                return false;
+            }
+        });
+    }
+    </script>
+</body>
+</html>

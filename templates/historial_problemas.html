@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Problemas Reportados</title>
+    <link rel="stylesheet" href="/static/styles.css?v=2.4">
+    <style>
+        .problema-card {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        .problema-card.urgente {
+            border-left: 4px solid #ef4444;
+        }
+        .problema-card.normal {
+            border-left: 4px solid var(--accent);
+        }
+        .problema-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .problema-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        .problema-titulo {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        .problema-titulo.urgente {
+            color: #ef4444;
+        }
+        .problema-titulo.normal {
+            color: var(--accent);
+        }
+        .problema-categoria {
+            margin: 5px 0 0 0;
+            font-size: 0.85em;
+            color: #888;
+        }
+        .badge-urgente {
+            padding: 5px 12px;
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .problema-descripcion-label {
+            font-weight: 600;
+        }
+        .problema-descripcion-label.urgente {
+            color: #ef4444;
+        }
+        .problema-descripcion-label.normal {
+            color: var(--accent);
+        }
+        .problema-descripcion-texto {
+            margin: 5px 0 0 0;
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .soporte-box {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .soporte-texto {
+            margin: 0;
+            color: #991b1b;
+            font-weight: 600;
+        }
+        .soporte-numero {
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Historial de Problemas Reportados</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Aquí puedes revisar todos los problemas reportados manualmente por los usuarios.
+        </p>
+
+        {% if problemas %}
+            {% for prob in problemas %}
+            <div class="problema-card {% if prob.urgente %}urgente{% else %}normal{% endif %}">
+                <div class="problema-header">
+                    <div class="problema-info">
+                        <h3 class="problema-titulo {% if prob.urgente %}urgente{% else %}normal{% endif %}">
+                            📅 {{ prob.fecha }}
+                        </h3>
+                        <p class="problema-categoria">
+                            Categoría: {% if prob.categoria == 'hardware' %}🔧 Hardware{% else %}💻 Software{% endif %}
+                        </p>
+                    </div>
+                    {% if prob.urgente %}
+                    <span class="badge-urgente">
+                        ⚠️ URGENTE
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <strong class="problema-descripcion-label {% if prob.urgente %}urgente{% else %}normal{% endif %}">Descripción:</strong>
+                    <p class="problema-descripcion-texto">{{ prob.descripcion }}</p>
+                </div>
+
+                {% if prob.urgente %}
+                <div class="soporte-box">
+                    <p class="soporte-texto">
+                        📞 Contacto de soporte: <span class="soporte-numero">{{ numero_soporte }}</span>
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 40px; background-color: #f8f9fa; border-radius: 10px; margin-top: 20px;">
+                <p style="font-size: 1.1em; color: #666; margin: 0;">
+                    📭 No hay problemas reportados aún.
+                </p>
+                <p style="margin-top: 10px; color: #888;">
+                    Los problemas aparecerán aquí una vez que los usuarios los reporten.
+                </p>
+            </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap;">
+            <a href="/otro-problema" class="btn btn-warning" style="flex: 1; min-width: 200px;">📝 Reportar Nuevo Problema</a>
+            <a href="/" class="btn btn-secondary" style="flex: 1; min-width: 200px;">🏠 Volver al Inicio</a>
+        </div>
+    </div>
+</body>
+</html>

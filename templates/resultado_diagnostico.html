@@ -50,6 +50,36 @@
             <p style="font-size: 1.05em; line-height: 1.8;">{{ diagnostico }}</p>
         </div>
 
+        <!-- Feedback: ¿Sirvió la solución? -->
+        <div id="feedback-section" style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; border: 2px solid var(--border);">
+            <h3 style="text-align: center; color: var(--primary); margin-bottom: 15px;">¿La solución te ayudó?</h3>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button onclick="enviarFeedback('si')" class="btn" style="flex: 1; max-width: 200px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin: 0;">
+                    ✅ Sí, me sirvió
+                </button>
+                <button onclick="enviarFeedback('no')" class="btn btn-warning" style="flex: 1; max-width: 200px; margin: 0;">
+                    ❌ No me sirvió
+                </button>
+            </div>
+        </div>
+
+        <!-- Mensaje de agradecimiento (se muestra después del feedback) -->
+        <div id="feedback-gracias" style="display: none; margin-top: 20px; padding: 20px; background-color: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; border-radius: 10px; text-align: center;">
+            <h3 style="color: #10b981; margin-bottom: 10px;">✅ ¡Gracias por tu feedback!</h3>
+            <p style="color: #333; margin: 0;">Tu opinión nos ayuda a mejorar el sistema.</p>
+        </div>
+
+        <!-- Contacto de soporte (solo si NO sirvió) -->
+        <div id="soporte-contacto" style="display: none; margin-top: 20px; padding: 20px; background-color: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; border-radius: 10px;">
+            <h3 style="color: #ef4444; margin-bottom: 10px; text-align: center;">📞 Contacta a Soporte Técnico</h3>
+            <p style="text-align: center; color: #333; margin-bottom: 10px;">
+                Lamentamos que la solución no haya funcionado. Nuestro equipo técnico puede ayudarte.
+            </p>
+            <p style="text-align: center; font-size: 1.3em; font-weight: bold; color: #ef4444; margin: 0;">
+                {{ numero_soporte }}
+            </p>
+        </div>
+
         <!-- Botones de acción -->
         <button onclick="window.print()" class="btn" style="margin-top: 30px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
             🖨️ Imprimir Diagnóstico
@@ -71,10 +101,50 @@
     <!-- Datos para JavaScript (sin sintaxis Jinja dentro del script) -->
     <div id="diagnostic-data" style="display: none;"
          data-diagnostico="{{ diagnostico }}"
-         data-sintomas='{% if sintomas_mostrados %}{{ sintomas_mostrados | tojson }}{% else %}[]{% endif %}'>
+         data-sintomas='{% if sintomas_mostrados %}{{ sintomas_mostrados | tojson }}{% else %}[]{% endif %}'
+         data-id-diagnostico="{{ id_diagnostico }}">
     </div>
 
     <script>
+    // --- Feedback: Sí sirvió / No sirvió ---
+    function enviarFeedback(respuesta) {
+        const dataElement = document.getElementById('diagnostic-data');
+        const idDiagnostico = dataElement.getAttribute('data-id-diagnostico');
+        
+        // Crear FormData para enviar
+        const formData = new FormData();
+        formData.append('id_diagnostico', idDiagnostico);
+        formData.append('feedback', respuesta);
+        
+        // Enviar feedback al servidor
+        fetch('/feedback', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Ocultar botones de feedback
+                document.getElementById('feedback-section').style.display = 'none';
+                
+                // Mostrar mensaje de agradecimiento
+                document.getElementById('feedback-gracias').style.display = 'block';
+                
+                // Si la respuesta fue "no", mostrar contacto de soporte
+                if (respuesta === 'no') {
+                    document.getElementById('soporte-contacto').style.display = 'block';
+                }
+            } else {
+                alert('Error al guardar feedback: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al enviar feedback. Por favor, intenta nuevamente.');
+        });
+    }
+
+    // --- Copiar diagnóstico al portapapeles ---
     function copyDiagnostic() {
         // Obtener datos del elemento oculto
         const dataElement = document.getElementById('diagnostic-data');

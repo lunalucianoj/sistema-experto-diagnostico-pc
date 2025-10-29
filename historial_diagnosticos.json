@@ -1,0 +1,95 @@
+[
+  {
+    "id": "diag_20251028_194754_741460",
+    "fecha": "2025-10-28 19:47:54",
+    "sintomas_ids": [
+      "pc_no_enciende"
+    ],
+    "sintomas_texto": [
+      "La PC no enciende para nada (sin luces ni ruidos)"
+    ],
+    "diagnostico": "Falla de Fuente de Poder. La PC no recibe energía. Verifica el cable de alimentación, el interruptor trasero de la fuente y las conexiones internas a la placa base.",
+    "feedback": "si",
+    "timestamp": 1761691674.741519,
+    "fecha_feedback": "2025-10-28 19:48:24"
+  },
+  {
+    "id": "diag_20251028_194906_994075",
+    "fecha": "2025-10-28 19:49:06",
+    "sintomas_ids": [
+      "enciende_pero_no_arranca_os"
+    ],
+    "sintomas_texto": [
+      "La PC enciende (luces, ventiladores) pero no carga el Sistema Operativo"
+    ],
+    "diagnostico": "Falla crítica de Hardware (Placa base o CPU). Si la PC enciende pero no hay pitidos y no inicia el sistema operativo, podría ser un problema grave en la placa base o el procesador.",
+    "feedback": "no",
+    "timestamp": 1761691746.994109,
+    "fecha_feedback": "2025-10-28 19:49:11"
+  },
+  {
+    "id": "diag_20251028_194932_774929",
+    "fecha": "2025-10-28 19:49:32",
+    "sintomas_ids": [
+      "mensajes_error_frecuentes"
+    ],
+    "sintomas_texto": [
+      "Recibo mensajes de error de Windows o de aplicaciones a menudo"
+    ],
+    "diagnostico": "Diagnóstico Sugerido: Anota los mensajes de error específicos. Generalmente indican problemas de software (archivos faltantes, incompatibilidad), drivers, o a veces hardware (RAM). Busca el código de error en Google para obtener pistas más concretas.",
+    "feedback": "no",
+    "timestamp": 1761691772.774959,
+    "fecha_feedback": "2025-10-28 19:49:38"
+  },
+  {
+    "id": "diag_20251028_201344_931115",
+    "fecha": "2025-10-28 20:13:44",
+    "sintomas_ids": [
+      "user_20251028_195812_653218"
+    ],
+    "sintomas_texto": [],
+    "diagnostico": "problema con el cable, revisar la conexión [Sugerido por usuario - temporal]",
+    "feedback": "si",
+    "timestamp": 1761693224.931195,
+    "fecha_feedback": "2025-10-28 20:13:53"
+  },
+  {
+    "id": "diag_20251028_210812_508185",
+    "fecha": "2025-10-28 21:08:12",
+    "sintomas_ids": [
+      "hace_pitidos"
+    ],
+    "sintomas_texto": [
+      "La PC hace pitidos al intentar arrancar"
+    ],
+    "diagnostico": "Diagnóstico Sugerido: Los pitidos al arrancar son códigos de error de la BIOS, usualmente indican un problema grave de hardware (RAM, Tarjeta de Video, Placa Base). Anota la secuencia de pitidos (cortos y largos) y busca su significado en el manual de tu placa base o en internet para identificar el componente.",
+    "feedback": "no",
+    "timestamp": 1761696492.508242,
+    "fecha_feedback": "2025-10-28 21:10:42"
+  },
+  {
+    "id": "diag_20251028_211806_785146",
+    "fecha": "2025-10-28 21:18:06",
+    "sintomas_ids": [
+      "user_20251028_211716_076078"
+    ],
+    "sintomas_texto": [],
+    "diagnostico": "verificar configuración de idioma y si es un problema de la tecla realizar una limpieza [Sugerido por usuario - temporal]",
+    "feedback": "si",
+    "timestamp": 1761697086.785181,
+    "fecha_feedback": "2025-10-28 21:18:15"
+  },
+  {
+    "id": "diag_20251028_213209_332677",
+    "fecha": "2025-10-28 21:32:09",
+    "sintomas_ids": [
+      "sobrecalentamiento"
+    ],
+    "sintomas_texto": [
+      "La PC se siente muy caliente o los ventiladores giran muy rápido/ruidoso"
+    ],
+    "diagnostico": "Diagnóstico: Las reglas exactas no coinciden. Un análisis avanzado (ML) sugiere investigar posibles conflictos de software generales o drivers recientes. Considere proporcionar más detalles en la sección 'Otro Problema'. (Módulo ML simulado)",
+    "feedback": null,
+    "timestamp": 1761697929.332708
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "prob_20251028_195005_232400",
+    "fecha": "2025-10-28 19:50:05",
+    "categoria": "hardware",
+    "descripcion": "Mi pc hace mucho ruido como si estuviese por explotar.",
+    "urgente": true,
+    "timestamp": 1761691805.232425
+  },
+  {
+    "id": "prob_20251028_195305_152549",
+    "fecha": "2025-10-28 19:53:05",
+    "categoria": "software",
+    "descripcion": "Presento una lentitud al abrir el navegador",
+    "urgente": false,
+    "timestamp": 1761691985.152577
+  },
+  {
+    "id": "prob_20251028_211423_449916",
+    "fecha": "2025-10-28 21:14:23",
+    "categoria": "software",
+    "descripcion": "Cuando inicio el sistema operativo, no me deja realizar ninguna accion por 5minutos.",
+    "urgente": true,
+    "timestamp": 1761696863.449942
+  }
+]

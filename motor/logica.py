@@ -4,8 +4,10 @@
 # 2. Proporciona funciones para acceder a los Hechos (síntomas) y Categorías.
 # 3. Implementa el Motor de Inferencia basado en reglas SI...ENTONCES...
 # 4. Incluye una simulación de Módulo ML como fallback.
+# 5. Integra datos ingresados por usuarios desde conocimiento_usuario.json
 
 import json
+import os
 from pydantic import BaseModel, Field, model_validator
 from typing import List, Dict, Optional, Any
 
@@ -93,11 +95,73 @@ BASE_CONOCIMIENTO = cargar_base_conocimiento()
 # Diccionario para acceder rápidamente a los detalles de un hecho por su ID
 HECHOS_POR_ID: Dict[str, Hecho] = {hecho.id: hecho for hecho in BASE_CONOCIMIENTO.hechos}
 
+# --- Funciones para Integrar Datos de Usuario ---
+
+def cargar_datos_usuario(archivo: str = "conocimiento_usuario.json") -> List[Dict[str, Any]]:
+    """Carga datos ingresados por usuarios desde JSON."""
+    if os.path.exists(archivo):
+        try:
+            with open(archivo, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, Exception) as e:
+            print(f"WARN: Error al cargar {archivo}: {e}")
+            return []
+    return []
+
+def convertir_datos_usuario_a_hechos(datos_usuario: List[Dict[str, Any]]) -> List[Hecho]:
+    """
+    Convierte datos de usuario en objetos Hecho temporales.
+    Genera IDs únicos y agrega marcador visual [Usuario] en la pregunta.
+    """
+    hechos_temporales = []
+    for dato in datos_usuario:
+        try:
+            hecho = Hecho(
+                id=dato["id"],  # Usa el ID generado al guardar
+                pregunta=f"[👤 Usuario] {dato['sintoma']}",  # Marca visual
+                categoria=dato["categoria"]
+            )
+            hechos_temporales.append(hecho)
+        except Exception as e:
+            print(f"WARN: No se pudo convertir dato de usuario: {e}")
+            continue
+    return hechos_temporales
+
+def crear_reglas_usuario(datos_usuario: List[Dict[str, Any]]) -> List[Regla]:
+    """
+    Crea reglas temporales basadas en los datos del usuario.
+    Una regla simple: si se selecciona el síntoma del usuario, devolver su diagnóstico.
+    """
+    reglas_temporales = []
+    for dato in datos_usuario:
+        try:
+            regla = Regla(
+                diagnostico=f"{dato['diagnostico']} [Sugerido por usuario - temporal]",
+                condiciones=[dato["id"]]  # Solo requiere ese síntoma
+            )
+            reglas_temporales.append(regla)
+        except Exception as e:
+            print(f"WARN: No se pudo crear regla de usuario: {e}")
+            continue
+    return reglas_temporales
+
 # --- 3. Funciones Auxiliares para la Interfaz de Usuario ---
 
 def get_hechos_por_categoria(categoria: str) -> List[Hecho]:
-    """Devuelve la lista de Hechos (síntomas) que pertenecen a una categoría específica."""
-    return [hecho for hecho in BASE_CONOCIMIENTO.hechos if hecho.categoria == categoria]
+    """
+    Devuelve la lista de Hechos (síntomas) que pertenecen a una categoría específica.
+    INCLUYE los datos ingresados por usuarios de forma temporal.
+    """
+    # Obtener hechos de la base de conocimiento original
+    hechos_base = [hecho for hecho in BASE_CONOCIMIENTO.hechos if hecho.categoria == categoria]
+    
+    # Cargar y agregar hechos de usuario
+    datos_usuario = cargar_datos_usuario()
+    hechos_usuario = convertir_datos_usuario_a_hechos(datos_usuario)
+    hechos_usuario_categoria = [h for h in hechos_usuario if h.categoria == categoria]
+    
+    # Combinar ambos (usuario al final para que sea visible)
+    return hechos_base + hechos_usuario_categoria
 
 def get_categorias() -> List[str]:
     """Devuelve una lista única y ordenada de todas las categorías disponibles."""
@@ -111,11 +175,19 @@ def _llamar_modulo_ml(hechos_activos_ids: List[str]) -> str:
      Función placeholder que simula la intervención de un módulo de Machine Learning.
      Se activa cuando las reglas SI-ENTONCES no son concluyentes.
      Intenta dar una sugerencia basada en palabras clave de los síntomas activos.
+     Versión 2.0: Incluye datos de usuario en el diccionario de hechos.
      """
      print(f"INFO: Las reglas SI-ENTONCES no fueron concluyentes para los síntomas: {hechos_activos_ids}. Pasando a Módulo ML (simulado).")
      
+     # Crear diccionario completo de hechos (base + usuario)
+     datos_usuario = cargar_datos_usuario()
+     hechos_usuario = convertir_datos_usuario_a_hechos(datos_usuario)
+     hechos_por_id_completo = HECHOS_POR_ID.copy()
+     for hecho in hechos_usuario:
+         hechos_por_id_completo[hecho.id] = hecho
+     
      set_hechos_activos = set(hechos_activos_ids)
-     sintomas_texto = " ".join(HECHOS_POR_ID[id_hecho].pregunta for id_hecho in hechos_activos_ids if id_hecho in HECHOS_POR_ID).lower()
+     sintomas_texto = " ".join(hechos_por_id_completo[id_hecho].pregunta for id_hecho in hechos_activos_ids if id_hecho in hechos_por_id_completo).lower()
      
      # Lógica simulada de ML: busca patrones simples y ofrece sugerencias contextuales
      sugerencia_ml = "investigar posibles conflictos de software generales o drivers recientes." # Sugerencia por defecto
@@ -145,19 +217,31 @@ def _llamar_modulo_ml(hechos_activos_ids: List[str]) -> str:
 
 def motor_de_inferencia(hechos_activos_ids: List[str]) -> Dict[str, Any]:
     """
-    Motor de Inferencia principal (v3.3).
+    Motor de Inferencia principal (v3.4 con datos de usuario).
     1. Busca la regla SI-ENTONCES más específica que coincida significativamente.
-    2. Si no la encuentra, busca una sugerencia para síntoma único.
-    3. Si tampoco, llama a la simulación del módulo ML.
+    2. INCLUYE reglas creadas desde datos de usuario de forma temporal.
+    3. Si no la encuentra, busca una sugerencia para síntoma único.
+    4. Si tampoco, llama a la simulación del módulo ML.
     Devuelve un diccionario con el diagnóstico y los síntomas considerados.
     """
     set_hechos_activos = set(hechos_activos_ids) # Convertir a set para eficiencia
     resultado_final: str = "Diagnóstico no determinado" # Valor por defecto
 
+    # --- Actualizar HECHOS_POR_ID con datos de usuario ---
+    datos_usuario = cargar_datos_usuario()
+    hechos_usuario = convertir_datos_usuario_a_hechos(datos_usuario)
+    hechos_por_id_completo = HECHOS_POR_ID.copy()
+    for hecho in hechos_usuario:
+        hechos_por_id_completo[hecho.id] = hecho
+
     # --- Manejo de Entrada Vacía ---
     if not set_hechos_activos:
         resultado_final = "Por favor, selecciona al menos un síntoma."
     else:
+        # --- Crear conjunto combinado de reglas (base + usuario) ---
+        reglas_usuario = crear_reglas_usuario(datos_usuario)
+        todas_las_reglas = list(BASE_CONOCIMIENTO.reglas) + reglas_usuario
+        
         # --- Búsqueda de la Mejor Regla Coincidente ---
         mejor_regla_encontrada = None
         # Guarda cuántos síntomas del usuario usa la mejor regla encontrada
@@ -166,7 +250,9 @@ def motor_de_inferencia(hechos_activos_ids: List[str]) -> Dict[str, Any]:
         max_especificidad_regla = -1 
 
         print(f"\n--- Iniciando Inferencia para: {set_hechos_activos} ---")
-        for regla in BASE_CONOCIMIENTO.reglas:
+        print(f"Total de reglas (base + usuario): {len(todas_las_reglas)}")
+        
+        for regla in todas_las_reglas:
             condiciones_cumplidas = True
             condiciones_positivas_coincidentes_actual = 0
             especificidad_actual = len(regla.condiciones)
